@@ -5,12 +5,13 @@
 import { state } from './state.js';
 
 const BLOCK_TYPES = [
-    { type: 'text',      label: 'Text',      icon: 'type',          hotkey: '/text' },
-    { type: 'heading-1', label: 'Heading 1', icon: 'heading-1',     hotkey: '/h1'   },
-    { type: 'heading-2', label: 'Heading 2', icon: 'heading-2',     hotkey: '/h2'   },
-    { type: 'heading-3', label: 'Heading 3', icon: 'heading-3',     hotkey: '/h3'   },
-    { type: 'code',      label: 'Code',      icon: 'code',          hotkey: '/code' },
-    { type: 'checklist', label: 'Checklist', icon: 'check-square',  hotkey: '/check'},
+    { type: 'text',              label: 'Text',              icon: 'type',          hotkey: '/text'     },
+    { type: 'heading-1',          label: 'Heading 1',         icon: 'heading-1',     hotkey: '/h1'       },
+    { type: 'heading-2',          label: 'Heading 2',         icon: 'heading-2',     hotkey: '/h2'       },
+    { type: 'heading-3',          label: 'Heading 3',         icon: 'heading-3',     hotkey: '/h3'       },
+    { type: 'code',              label: 'Code',              icon: 'code',          hotkey: '/code'     },
+    { type: 'checklist',         label: 'Checklist',         icon: 'check-square',  hotkey: '/check'    },
+    { type: 'hologram-timeline', label: 'Hologram Timeline', icon: 'git-branch',    hotkey: '/timeline' },
 ];
 
 export class EditorComponent {
@@ -360,6 +361,87 @@ export class EditorComponent {
             });
             table.appendChild(tbody);
             contentContainer.appendChild(table);
+        } else if (block.type === 'hologram-timeline') {
+            let nodesData = [];
+            try { nodesData = JSON.parse(block.content); } catch (e) {
+                nodesData = [
+                    { id: 'node-1', label: 'DATABASE SCRAPING LINK', time: '04:12:00', icon: 'database', status: 'COMPLETE', statusClass: 'green' },
+                    { id: 'node-2', label: 'ORBITAL TUNNEL BREACH', time: '06:45:12', icon: 'shield-alert', status: 'CRITICAL', statusClass: 'red' },
+                    { id: 'node-3', label: 'QUANTUM KEY EXFILTRATION', time: '09:20:00', icon: 'key', status: 'IN_PROGRESS', statusClass: 'cyan' },
+                    { id: 'node-4', label: 'CORE DECK RESYNCHRONIZATION', time: '12:05:44', icon: 'refresh-cw', status: 'STANDBY', statusClass: 'gray' }
+                ];
+            }
+
+            const gridContainer = document.createElement('div');
+            gridContainer.className = 'hologram-timeline-grid';
+
+            const trackWrapper = document.createElement('div');
+            trackWrapper.className = 'timeline-track-wrapper';
+            trackWrapper.innerHTML = `<div class="timeline-rail"></div>`;
+
+            const nodesContainer = document.createElement('div');
+            nodesContainer.className = 'timeline-nodes-container';
+
+            const consolePanel = document.createElement('div');
+            consolePanel.className = 'diagnostic-console-panel';
+            consolePanel.innerHTML = `
+                <div class="console-header font-mono">
+                    <div class="console-title-group">
+                        <i data-lucide="terminal" style="width: 14px; height: 14px; color: var(--neon-secondary);"></i>
+                        <span>DIAGNOSTIC_CONSOLE.EXE</span>
+                    </div>
+                    <span class="console-status font-mono">ONLINE</span>
+                </div>
+                <div class="console-log-feed font-mono" id="timeline-log-feed">
+                    <div class="console-line">
+                        <span class="console-time">[00:00:00]</span>
+                        <span class="console-message font-mono">SYS_OK // CORE_TELEMETRY_LINKED</span>
+                    </div>
+                </div>`;
+
+            nodesData.forEach((node, nodeIdx) => {
+                const nodeCard = document.createElement('div');
+                nodeCard.className = `timeline-node-card ${nodeIdx === 0 ? 'active-node' : ''}`;
+                nodeCard.dataset.nodeId = node.id;
+                
+                nodeCard.innerHTML = `
+                    <div class="timeline-node-connector-dot"></div>
+                    <div class="timeline-node-header font-mono">
+                        <div class="timeline-node-title-group">
+                            <span class="timeline-node-icon"><i data-lucide="${node.icon || 'activity'}"></i></span>
+                            <span class="timeline-node-time">${node.time}</span>
+                        </div>
+                    </div>
+                    <div class="timeline-node-body font-mono">
+                        <span class="timeline-node-label">${node.label}</span>
+                        <span class="timeline-node-status ${node.statusClass}">${node.status}</span>
+                    </div>
+                `;
+
+                nodeCard.addEventListener('click', () => {
+                    nodesContainer.querySelectorAll('.timeline-node-card').forEach(c => c.classList.remove('active-node'));
+                    nodeCard.classList.add('active-node');
+
+                    if (window.app && window.app.focusMode && window.app.focusMode.audio && !state.isGlobalAudioMuted()) {
+                        window.app.focusMode.audio.warm();
+                        window.app.focusMode.audio.playSoftClick();
+                    }
+
+                    this._streamDiagnostics(node);
+                });
+
+                nodesContainer.appendChild(nodeCard);
+            });
+
+            trackWrapper.appendChild(nodesContainer);
+            gridContainer.appendChild(trackWrapper);
+            gridContainer.appendChild(consolePanel);
+            contentContainer.appendChild(gridContainer);
+            
+            setTimeout(() => {
+                if (nodesData[0]) this._streamDiagnostics(nodesData[0]);
+            }, 150);
+
         } else if (block.type === 'embed') {
             const embedCard = document.createElement('div');
             embedCard.className = 'embed-info';
@@ -537,5 +619,67 @@ export class EditorComponent {
             case 'code':      return 'Write code here...';
             default:          return 'Type / for commands...';
         }
+    }
+
+    /* -----------------------------------------------------------------------
+       HOLOGRAM TIMELINE DIAGNOSTICS STREAM (Task 3.3)
+    ----------------------------------------------------------------------- */
+
+    _streamDiagnostics(node) {
+        const feed = document.getElementById('timeline-log-feed');
+        if (!feed) return;
+
+        feed.innerHTML = '';
+        
+        const logs = [
+            `UPLINK_ESTABLISHED // NODE: ${node.id.toUpperCase()}`,
+            `CHECKING_SIGNATURES: decryp_strength = 97.4%`,
+            `SECTOR_ADDRESS: Sector_Node_${node.label.replace(/\s+/g, '_')}`,
+            `TIME_STAMP_COORDS: [${node.time}]`
+        ];
+
+        if (node.status === 'COMPLETE') {
+            logs.push(`STATUS: COMPLETE // SECURE_LINK_VERIFIED`, `COGNITION_LATENCY: 4.8ms`, `telemetry_exfiltrated = 100%`);
+        } else if (node.status === 'CRITICAL') {
+            logs.push(`WARNING: CORE_INTEGRITY_COMPROMISED`, `FIREWALL_BREACH_DETECTED // DISTRICT_4`, `DEPLOYING_COUNTER_DECOYS...`);
+        } else if (node.status === 'IN_PROGRESS') {
+            logs.push(`DECRYPTING_SECTOR_KEYS...`, `UPLINK_SPEED: 842.6 GB/s`, `estimated_completion = 4s`);
+        } else {
+            logs.push(`STATUS: STANDBY // NODE_ONLINE`, `ping_status = OK`, `waiting_for_intrusion_sequence`);
+        }
+
+        // Incrementally stream these log lines with a typing/scrolling delay
+        logs.forEach((lineText, i) => {
+            setTimeout(() => {
+                const line = document.createElement('div');
+                line.className = 'console-line';
+                
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'console-time';
+                const now = new Date();
+                const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+                timeSpan.textContent = `[${ts}]`;
+                
+                const msgSpan = document.createElement('span');
+                msgSpan.className = 'console-message font-mono';
+                
+                if (lineText.includes('WARNING') || lineText.includes('COMPROMISED') || lineText.includes('BREACH')) {
+                    msgSpan.className = 'console-message highlight-red font-mono';
+                } else if (lineText.includes('COMPLETE') || lineText.includes('VERIFIED')) {
+                    msgSpan.className = 'console-message highlight-green font-mono';
+                } else if (lineText.includes('DECRYPTING') || lineText.includes('IN_PROGRESS')) {
+                    msgSpan.className = 'console-message highlight-cyan font-mono';
+                }
+                
+                msgSpan.textContent = lineText;
+                
+                line.appendChild(timeSpan);
+                line.appendChild(msgSpan);
+                feed.appendChild(line);
+                
+                // Scroll to bottom
+                feed.scrollTop = feed.scrollHeight;
+            }, i * 150);
+        });
     }
 }

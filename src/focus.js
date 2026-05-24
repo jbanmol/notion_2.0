@@ -43,6 +43,23 @@ class CyberAudio {
         (profiles[this.profile] || profiles.mech)();
     }
 
+    /** Refined, extremely quiet click sound for global keystrokes */
+    playSoftClick() {
+        if (!this._ready || !this.ctx) return;
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1200, t);
+        osc.frequency.exponentialRampToValueAtTime(600, t + 0.015);
+        gain.gain.setValueAtTime(0.04, t);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.02);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.025);
+    }
+
     /* --- Mech Click: short high-freq oscillator + noise burst ------------ */
     _playMech() {
         const t = this.ctx.currentTime;

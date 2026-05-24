@@ -8,6 +8,7 @@ const STORAGE_KEY = 'neonotion_cyber_workspace_data';
 const DEFAULT_WORKSPACE_DATA = {
     activeDocId: 'doc-security-audit',
     currentTheme: 'theme-obsidian',
+    globalAudioMuted: false,
     documents: {
         'doc-security-audit': {
             id: 'doc-security-audit',
@@ -77,6 +78,28 @@ const DEFAULT_WORKSPACE_DATA = {
                 },
                 { id: 'b18', type: 'text', content: 'Adjust voltage rails strictly in the range of 1.25V - 1.40V to prevent core crystal desynchronization.' }
             ]
+        },
+        'doc-timeline': {
+            id: 'doc-timeline',
+            title: '📡 OPERATIONS_TIMELINE.LOG',
+            icon: '📡',
+            pinned: false,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            blocks: [
+                { id: 'b_t1', type: 'heading-1', content: 'SYSTEM WIDE OPERATIONS TIMELINE' },
+                { id: 'b_t2', type: 'text', content: 'Select event nodes in the timeline cockpit below to decrypt sector logs, query cognition latency metrics, and trace diagnostic telemetry streams.' },
+                {
+                    id: 'b_t3',
+                    type: 'hologram-timeline',
+                    content: JSON.stringify([
+                        { id: 'node-1', label: 'DATABASE SCRAPING LINK', time: '04:12:00', icon: 'database', status: 'COMPLETE', statusClass: 'green' },
+                        { id: 'node-2', label: 'ORBITAL TUNNEL BREACH', time: '06:45:12', icon: 'shield-alert', status: 'CRITICAL', statusClass: 'red' },
+                        { id: 'node-3', label: 'QUANTUM KEY EXFILTRATION', time: '09:20:00', icon: 'key', status: 'IN_PROGRESS', statusClass: 'cyan' },
+                        { id: 'node-4', label: 'CORE DECK RESYNCHRONIZATION', time: '12:05:44', icon: 'refresh-cw', status: 'STANDBY', statusClass: 'gray' }
+                    ])
+                }
+            ]
         }
     }
 };
@@ -103,6 +126,7 @@ class StateManager {
                 const parsed = JSON.parse(stored);
                 // Backfill metadata on all docs
                 Object.values(parsed.documents).forEach(doc => backfillDocument(doc));
+                if (parsed.globalAudioMuted === undefined) parsed.globalAudioMuted = false;
                 return parsed;
             } catch (e) {
                 console.error("Error loading cached state, seeding default telemetry instead.", e);
@@ -138,6 +162,15 @@ class StateManager {
 
     getActiveTheme() {
         return this.data.currentTheme || 'theme-obsidian';
+    }
+
+    isGlobalAudioMuted() {
+        return this.data.globalAudioMuted === true;
+    }
+
+    setGlobalAudioMuted(muted) {
+        this.data.globalAudioMuted = muted;
+        this.saveToStorage();
     }
 
     // --- State Mutations ---

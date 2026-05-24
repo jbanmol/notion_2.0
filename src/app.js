@@ -27,6 +27,7 @@ class AppController {
         this.themeBtnEl      = document.getElementById('theme-toggle-btn');
         this.themeDropdownEl = document.getElementById('theme-dropdown');
         this.timerPillEl     = document.getElementById('timer-pill');
+        this.audioMuteBtnEl  = document.getElementById('audio-mute-btn');
 
         this.init();
     }
@@ -49,6 +50,11 @@ class AppController {
 
         // Wire timer pill (Task 7.3)
         this._initTimerPill();
+
+        // Wire global silent/audio controls (Tasks 2.2, 2.3)
+        this._initAudioMuteButton();
+        this._initGlobalKeystrokes();
+        this._initUIInteractions();
 
         console.log("⚡ NEONOTION CORES ENGAGED. FUTURISTIC HUD DEPLOYED.");
         console.log("🎯 FOCUS MODE CONTROLLER ONLINE. Cmd+Shift+F to engage.");
@@ -125,6 +131,94 @@ class AppController {
             themeOptions.forEach(o => o.classList.remove('active'));
             activeOpt.classList.add('active');
         }
+    }
+
+    /* -----------------------------------------------------------------------
+       GLOBAL AUDIO MUTE BUTTON & SOUND FEEDBACK (Tasks 2.2, 2.3)
+    ----------------------------------------------------------------------- */
+
+    _initAudioMuteButton() {
+        if (!this.audioMuteBtnEl) return;
+
+        // Apply initial mute state
+        this.updateAudioMuteUI();
+
+        this.audioMuteBtnEl.addEventListener('click', () => {
+            const isMuted = state.isGlobalAudioMuted();
+            state.setGlobalAudioMuted(!isMuted);
+            this.updateAudioMuteUI();
+
+            // Warm up audio and play confirmation chime if unmuted
+            if (this.focusMode && this.focusMode.audio) {
+                this.focusMode.audio.warm();
+                if (!state.isGlobalAudioMuted()) {
+                    this.focusMode.audio.playSoftClick();
+                }
+            }
+        });
+    }
+
+    updateAudioMuteUI() {
+        if (!this.audioMuteBtnEl) return;
+        const isMuted = state.isGlobalAudioMuted();
+
+        // Update visual active state
+        this.audioMuteBtnEl.classList.toggle('active', !isMuted);
+
+        // Update Lucide icon inside button
+        const iconEl = this.audioMuteBtnEl.querySelector('i');
+        if (iconEl) {
+            iconEl.className = ''; // reset classes
+            if (isMuted) {
+                iconEl.setAttribute('data-lucide', 'volume-x');
+            } else {
+                iconEl.setAttribute('data-lucide', 'volume-2');
+            }
+        }
+
+        // Re-render Lucide icons
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    _initGlobalKeystrokes() {
+        document.addEventListener('click', () => {
+            if (this.focusMode && this.focusMode.audio) {
+                this.focusMode.audio.warm();
+            }
+        }, { once: true });
+
+        document.addEventListener('keydown', (e) => {
+            // Only play soft clicks if focus mode is NOT active and sound is NOT muted
+            if (this.focusMode && this.focusMode.audio && !state.isGlobalAudioMuted()) {
+                if (!this.focusMode.active) {
+                    const target = e.target;
+                    const isEditorTarget =
+                        target.contentEditable === 'true' ||
+                        target.id === 'document-title' ||
+                        target.id === 'sidebar-search' ||
+                        target.classList.contains('block-content') ||
+                        target.tagName === 'INPUT';
+                    if (!isEditorTarget) return;
+                    const isPrintable = e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete' || e.key === 'Enter';
+                    if (!isPrintable) return;
+                    this.focusMode.audio.playSoftClick();
+                }
+            }
+        });
+    }
+
+    _initUIInteractions() {
+        // Subtle key click when clicking major UI buttons, links, options or list nodes
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('button, .document-item, .hud-btn, .theme-opt, .slash-item');
+            if (btn && this.focusMode && this.focusMode.audio && !state.isGlobalAudioMuted()) {
+                // If it's the mute button itself, we already handled it
+                if (btn.id === 'audio-mute-btn') return;
+
+                this.focusMode.audio.warm();
+                this.focusMode.audio.playSoftClick();
+            }
+        });
     }
 }
 

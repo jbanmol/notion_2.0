@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEONOTION // Cybernetic Workspace</title>
+    <title>NΞONOTION ⚡</title>
     
     <!-- Google Fonts: Futuristic Outfit, Code Share Tech Mono, Clean Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,8 +26,13 @@
         <aside class="sidebar-panel glass-panel">
             <div class="sidebar-header">
                 <div class="sidebar-brand">
-                    <i data-lucide="cpu" class="neon-glow-icon pink"></i>
-                    <span class="brand-text">NEO<span class="highlight">NOTION</span></span>
+                    <div class="logo-icon-container">
+                        <i data-lucide="cpu" class="neon-glow-icon pink"></i>
+                    </div>
+                    <div class="brand-text-group">
+                        <span class="brand-text">NEO<span class="highlight">NOTION</span></span>
+                        <span class="brand-subtitle font-mono">CYBERNETIC_WORKSPACE</span>
+                    </div>
                 </div>
                 <div class="system-status">
                     <span class="status-dot pulsing"></span>
@@ -92,6 +97,12 @@
                     <button id="timer-pill" class="timer-pill font-mono" title="Toggle Mission Timer">
                         <i data-lucide="timer"></i>
                         <span id="timer-pill-display">25:00</span>
+                    </button>
+
+                    <!-- Global Audio Mute Switch -->
+                    <button id="audio-mute-btn" class="utility-icon-btn font-mono" title="Toggle Global Key Sound">
+                        <i data-lucide="volume-2"></i>
+                        <span class="btn-label">SOUND</span>
                     </button>
 
                     <!-- Focus Mode Toggle -->
