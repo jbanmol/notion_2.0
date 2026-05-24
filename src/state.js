@@ -68,6 +68,28 @@ const DEFAULT_WORKSPACE_DATA = {
                 },
                 { id: 'b18', type: 'text', content: 'Adjust voltage rails strictly in the range of 1.25V - 1.40V to prevent core crystal desynchronization.' }
             ]
+        },
+        'doc-timeline': {
+            id: 'doc-timeline',
+            title: '📡 OPERATIONS_TIMELINE.LOG',
+            icon: 'git-branch',
+            blocks: [
+                { id: 'b19', type: 'heading-1', content: 'COGNITIVE INTRUSION MISSION TIMELINE' },
+                { id: 'b20', type: 'text', content: 'Operational countdown matrix outlining the neural decryption and database exfiltration hack vector. Monitor sub-millisecond status parameters.' },
+                {
+                    id: 'b21',
+                    type: 'timeline',
+                    content: JSON.stringify([
+                        { time: 'T-MINUS 12:00', title: 'SUBNET RADAR INITIALIZED', status: 'COMPLETED', details: 'District 9 network structures successfully mapped under dynamic scanning probes.', icon: 'activity', color: 'cyan' },
+                        { time: 'T-MINUS 08:30', title: 'DECRYPTION MODULE ENGAGED', status: 'COMPLETED', details: 'Corrupted sync protocols loaded in memory deck. Security proxies bypassed.', icon: 'key', color: 'cyan' },
+                        { time: 'T-MINUS 02:15', title: 'FIREWALL BREACH DETECTED', status: 'WARNING', details: 'Intrusion alert flagged in district central subgrid! Automated countermeasures deploy.', icon: 'alert-triangle', color: 'pink' },
+                        { time: 'T-MINUS 00:05', title: 'ZEN_FOCUS DATA EXTRACTION', status: 'ONLINE', details: 'Streaming dynamic database profiles directly to secure local IndexedDB caches.', icon: 'download', color: 'violet' },
+                        { time: 'T-PLUS 04:00', title: 'SUBNET COOLDOWN & DECOY DEPLOY', status: 'PENDING', details: 'Trigger proxy shutoffs and purge logs to fully anonymize workspace coordinates.', icon: 'shield-alert', color: 'muted' }
+                    ])
+                },
+                { id: 'b22', type: 'heading-3', content: 'SYSTEM MEMO' },
+                { id: 'b23', type: 'text', content: 'Ensure focus parameters and mechanical click indicators remain active during exfiltration sequences. Interrogating individual timeline nodes displays advanced quantum logs.' }
+            ]
         }
     }
 };

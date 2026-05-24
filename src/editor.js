@@ -125,6 +125,121 @@ export class EditorComponent {
             table.appendChild(tbody);
 
             contentContainer.appendChild(table);
+        } else if (block.type === 'timeline') {
+            // Interactive Hologram Timeline component
+            let timelineEvents = [];
+            try {
+                timelineEvents = JSON.parse(block.content);
+            } catch (e) {
+                console.error("JSON formatting error inside block timeline specs", e);
+            }
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'timeline-block-wrapper';
+            wrapper.style.display = 'flex';
+            wrapper.style.gap = '20px';
+            wrapper.style.width = '100%';
+            wrapper.style.margin = '16px 0';
+
+            // Left Side: Vertical nodes list
+            const nodesContainer = document.createElement('div');
+            nodesContainer.className = 'timeline-nodes-container';
+            nodesContainer.style.flexGrow = '1';
+            nodesContainer.style.display = 'flex';
+            nodesContainer.style.flexDirection = 'column';
+            nodesContainer.style.position = 'relative';
+            nodesContainer.style.paddingLeft = '30px';
+
+            // Central vertical glowing line track
+            const trackLine = document.createElement('div');
+            trackLine.className = 'timeline-track-line';
+            nodesContainer.appendChild(trackLine);
+
+            // Right Side: Futuristic diagnostic control console HUD
+            const consolePanel = document.createElement('div');
+            consolePanel.className = 'timeline-diagnostic-panel glass-panel';
+            consolePanel.innerHTML = `
+                <div class="console-header font-mono">
+                    <i data-lucide="terminal" class="cyan"></i>
+                    <span>DIAGNOSTIC_CONSOLE.EXE</span>
+                </div>
+                <div class="console-screen font-mono" id="timeline-console-screen-${block.id}">
+                    <p class="text-muted">> SELECT A NEURAL TIMELINE NODE IN THE DECK TO INITIATE LIVE TRACE AUDITS...</p>
+                </div>
+            `;
+
+            timelineEvents.forEach((ev, idx) => {
+                const card = document.createElement('div');
+                card.className = `timeline-node-card glass-panel node-${ev.color || 'cyan'}`;
+                card.dataset.index = idx;
+                
+                let badgeClass = 'status-badge ';
+                if (ev.status === 'ONLINE') badgeClass += 'green';
+                if (ev.status === 'COMPLETED') badgeClass += 'cyan';
+                if (ev.status === 'WARNING') badgeClass += 'pink';
+                if (ev.status === 'PENDING') badgeClass += 'muted';
+
+                card.innerHTML = `
+                    <div class="node-bullet-glow"></div>
+                    <div class="node-meta font-mono">
+                        <span class="node-time">${ev.time}</span>
+                        <span class="${badgeClass}">${ev.status}</span>
+                    </div>
+                    <div class="node-body">
+                        <div class="node-title font-header">
+                            <i data-lucide="${ev.icon || 'circle'}" class="node-icon"></i>
+                            <span>${ev.title}</span>
+                        </div>
+                        <p class="node-desc">${ev.details}</p>
+                    </div>
+                `;
+
+                // Hover / click behavior to update console HUD panel!
+                card.addEventListener('click', () => {
+                    // Reset old highlights
+                    nodesContainer.querySelectorAll('.timeline-node-card').forEach(c => c.classList.remove('active-node-highlight'));
+                    card.classList.add('active-node-highlight');
+
+                    // Play typing sound when interacting with console
+                    if (window.app && window.app.focus && window.app.focus.audio) {
+                        window.app.focus.audio.playClick();
+                    }
+
+                    // Print glowing diagnostic traces on the console screen
+                    const screen = consolePanel.querySelector('.console-screen');
+                    screen.innerHTML = '';
+                    
+                    const logs = [
+                        `[LOG] ACCESSING NODE PROTOCOL FOR: ${ev.title.toUpperCase()}`,
+                        `[TIME] PARAMETER SECTOR: ${ev.time}`,
+                        `[STATUS] HARDWARE STATE: ${ev.status}`,
+                        `[CORR] CROSS-GRID COGNITION RATE: ${Math.floor(80 + Math.random() * 20)}%`,
+                        `[TRACE] INJECTING SUBNET INTRUSION DECRYPTS...`,
+                        `[PAYLOAD] DATA SUMMARY: ${ev.details}`
+                    ];
+
+                    let logIdx = 0;
+                    const printLog = () => {
+                        if (logIdx < logs.length) {
+                            const p = document.createElement('p');
+                            p.textContent = `> ${logs[logIdx]}`;
+                            if (logs[logIdx].includes('LOG')) p.className = 'cyan';
+                            if (logs[logIdx].includes('STATUS')) p.className = ev.status === 'WARNING' ? 'pink' : 'green';
+                            screen.appendChild(p);
+                            screen.scrollTop = screen.scrollHeight;
+                            logIdx++;
+                            setTimeout(printLog, 150);
+                        }
+                    };
+                    printLog();
+                });
+
+                nodesContainer.appendChild(card);
+            });
+
+            wrapper.appendChild(nodesContainer);
+            wrapper.appendChild(consolePanel);
+            contentContainer.appendChild(wrapper);
         } else if (block.type === 'embed') {
             // Embed holographic card mock
             const embedCard = document.createElement('div');
