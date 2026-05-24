@@ -43,6 +43,12 @@
                 </button>
             </div>
 
+            <!-- Sidebar Search Filter (Task 6.1) -->
+            <div class="sidebar-search-wrapper">
+                <i data-lucide="search" class="sidebar-search-icon"></i>
+                <input type="text" id="sidebar-search" class="sidebar-search-input font-mono" placeholder="FILTER_NODES..." autocomplete="off">
+            </div>
+
             <!-- Navigation Tree -->
             <nav class="sidebar-nav">
                 <div class="nav-section-title font-mono">WORKSPACE_NODES</div>
@@ -82,6 +88,12 @@
                         <span class="btn-hotkey">⌘K</span>
                     </button>
 
+                    <!-- Persistent Timer Pill (Task 7.1) -->
+                    <button id="timer-pill" class="timer-pill font-mono" title="Toggle Mission Timer">
+                        <i data-lucide="timer"></i>
+                        <span id="timer-pill-display">25:00</span>
+                    </button>
+
                     <!-- Focus Mode Toggle -->
                     <button id="focus-toggle-btn" class="utility-icon-btn focus-btn font-mono" title="Engage Focus Mode (Cmd+Shift+F)">
                         <i data-lucide="target"></i>
@@ -89,7 +101,7 @@
                         <span class="btn-hotkey">⌘⇧F</span>
                     </button>
 
-                    <!-- Audio Profile Selector -->
+                    <!-- Audio Profile Selector (hidden until focus mode active) -->
                     <select id="audio-profile-select" class="audio-select font-mono" title="Click Sound Profile">
                         <option value="mech">🔩 MECH</option>
                         <option value="vaporwave">🌸 VAPOR</option>
@@ -128,6 +140,11 @@
                         <!-- Blocks Injected dynamically -->
                     </div>
                 </div>
+
+                <!-- Editor Footer: Word Count (Task 4.3) -->
+                <div id="editor-footer" class="editor-footer font-mono">
+                    <span id="word-count-display" class="word-count-text">0 words · 0 min read</span>
+                </div>
             </section>
         </main>
     </div>
@@ -148,6 +165,18 @@
                 <span>↵ Select</span>
                 <span>/ Switch node</span>
             </div>
+        </div>
+    </div>
+
+    <!-- SLASH COMMAND MENU (Task 2.1) -->
+    <div id="slash-menu" class="slash-menu glass-panel hidden">
+        <!-- Items injected dynamically -->
+    </div>
+
+    <!-- EMOJI PICKER (Task 5.2) -->
+    <div id="emoji-picker" class="emoji-picker glass-panel hidden">
+        <div class="emoji-grid">
+            <!-- Emojis injected dynamically -->
         </div>
     </div>
 
@@ -197,6 +226,18 @@
             <h2 class="modal-title font-mono">MISSION_COMPLETE</h2>
             <p class="modal-desc">Intrusion window elapsed. Neural bandwidth restored.</p>
             <button id="modal-dismiss-btn" class="hud-btn hud-btn-start font-mono">ACKNOWLEDGED ✓</button>
+        </div>
+    </div>
+
+    <!-- CYBER MODAL (Tasks 1.3-1.4) -->
+    <div id="cyber-modal" class="cyber-modal-overlay hidden">
+        <div class="cyber-modal-card glass-panel">
+            <div class="cyber-modal-icon">⚠️</div>
+            <p class="cyber-modal-msg font-mono"></p>
+            <div class="cyber-modal-actions">
+                <button id="cyber-modal-confirm" class="hud-btn hud-btn-start font-mono">CONFIRM ✓</button>
+                <button id="cyber-modal-cancel"  class="hud-btn hud-btn-reset font-mono">CANCEL ✗</button>
+            </div>
         </div>
     </div>
 

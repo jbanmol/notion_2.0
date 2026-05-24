@@ -1369,3 +1369,386 @@ body.focus-mode-active #focus-toggle-btn {
     100% { opacity: 1; }
 }
 
+/* ==========================================================================
+   CORE REFINEMENTS — NEW COMPONENT STYLES
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   AUDIO SELECT — hidden by default, shown in focus mode (Task 7.4)
+-------------------------------------------------------------------------- */
+#audio-profile-select {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+body.focus-mode-active #audio-profile-select {
+    display: flex;
+    opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   TIMER PILL (Task 7.1)
+-------------------------------------------------------------------------- */
+.timer-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--neon-secondary);
+    color: var(--neon-secondary);
+    height: 38px;
+    padding: 0 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 8px var(--neon-secondary-glow);
+}
+.timer-pill:hover {
+    background: rgba(0, 240, 255, 0.1);
+    box-shadow: 0 0 16px var(--neon-secondary-glow);
+}
+.timer-pill i { width: 14px; height: 14px; }
+
+/* --------------------------------------------------------------------------
+   SLASH COMMAND MENU (Task 2.1)
+-------------------------------------------------------------------------- */
+.slash-menu {
+    position: fixed;
+    min-width: 240px;
+    max-width: 300px;
+    border-radius: 10px;
+    z-index: 800;
+    padding: 6px;
+    border-color: var(--neon-primary) !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 0 20px var(--neon-primary-glow);
+    overflow: hidden;
+}
+.slash-menu.hidden { display: none; }
+
+.slash-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.12s ease;
+    border: 1px solid transparent;
+}
+.slash-item:hover,
+.slash-item.active {
+    background: rgba(157, 0, 255, 0.12);
+    border-color: var(--neon-primary);
+    color: var(--neon-primary);
+}
+.slash-item-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: var(--text-muted);
+}
+.slash-item.active .slash-item-icon { color: var(--neon-primary); }
+.slash-item-label {
+    flex-grow: 1;
+    font-size: 0.9rem;
+}
+.slash-item-hotkey {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+.slash-empty {
+    padding: 12px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: center;
+    letter-spacing: 0.1em;
+}
+
+/* --------------------------------------------------------------------------
+   BLOCK DRAG-AND-DROP (Task 3.5)
+-------------------------------------------------------------------------- */
+.editor-block.dragging {
+    opacity: 0.4;
+    border: 1px solid var(--neon-primary);
+    box-shadow: 0 0 12px var(--neon-primary-glow);
+    border-radius: 6px;
+    cursor: grabbing;
+}
+.editor-block.drop-target {
+    border-top: 2px solid var(--neon-secondary);
+}
+.drop-indicator {
+    height: 2px;
+    background: var(--neon-secondary);
+    box-shadow: 0 0 8px var(--neon-secondary-glow);
+    border-radius: 2px;
+    margin: 2px 0;
+    pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   BLOCK TYPE SWITCHER BUTTON (Task 4.1)
+-------------------------------------------------------------------------- */
+.block-type-btn {
+    position: absolute;
+    left: -40px;
+    top: 6px;
+    width: 26px;
+    height: 26px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+    padding: 0;
+}
+.block-type-btn i { width: 14px; height: 14px; }
+.editor-block:hover .block-type-btn {
+    opacity: 0.7;
+}
+.block-type-btn:hover {
+    opacity: 1 !important;
+    color: var(--neon-secondary);
+    border-color: var(--neon-secondary);
+    background: rgba(0, 240, 255, 0.06);
+}
+
+/* --------------------------------------------------------------------------
+   BLOCK ENTRANCE ANIMATION (Task 4.6)
+-------------------------------------------------------------------------- */
+@keyframes block-slide-in {
+    0%   { transform: translateY(8px); opacity: 0; }
+    100% { transform: translateY(0);   opacity: 1; }
+}
+.block-enter {
+    animation: block-slide-in 0.2s ease-out forwards;
+}
+
+/* --------------------------------------------------------------------------
+   EDITOR FOOTER — Word Count (Task 4.3)
+-------------------------------------------------------------------------- */
+.editor-footer {
+    height: 32px;
+    border-top: 1px solid var(--panel-border);
+    padding: 0 12%;
+    display: flex;
+    align-items: center;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    background: rgba(0, 0, 0, 0.1);
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+}
+.word-count-text { opacity: 0.7; }
+body.focus-mode-active .editor-footer { display: none; }
+
+/* --------------------------------------------------------------------------
+   SIDEBAR SEARCH FILTER (Task 6.1)
+-------------------------------------------------------------------------- */
+.sidebar-search-wrapper {
+    position: relative;
+    margin-bottom: 12px;
+}
+.sidebar-search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+.sidebar-search-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    color: var(--text-main);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 7px 10px 7px 32px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.sidebar-search-input:focus {
+    border-color: var(--neon-secondary);
+    box-shadow: 0 0 8px var(--neon-secondary-glow);
+    outline: none;
+}
+.sidebar-search-input::placeholder { color: var(--text-muted); opacity: 0.5; }
+
+/* --------------------------------------------------------------------------
+   SIDEBAR DOCUMENT ITEM — Metadata & Actions (Tasks 5.1, 5.5, 5.6)
+-------------------------------------------------------------------------- */
+.document-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    padding: 8px 10px !important;
+}
+.doc-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-grow: 1;
+    min-width: 0;
+}
+.doc-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+.doc-title {
+    font-size: 0.88rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.doc-meta {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    opacity: 0.6;
+    letter-spacing: 0.05em;
+}
+.doc-emoji-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 2px;
+    border-radius: 4px;
+    transition: transform 0.15s;
+    flex-shrink: 0;
+}
+.doc-emoji-btn:hover { transform: scale(1.2); }
+
+.doc-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+.document-item:hover .doc-actions { opacity: 1; }
+
+.pin-doc-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 2px 4px;
+    border-radius: 4px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+.pin-doc-btn:hover, .pin-doc-btn.pinned-active { opacity: 1; }
+
+.document-item.pinned {
+    border-left: 2px solid var(--neon-accent) !important;
+    background: rgba(255, 0, 127, 0.04);
+}
+
+.sidebar-empty {
+    padding: 20px 12px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-align: center;
+    opacity: 0.5;
+}
+
+/* --------------------------------------------------------------------------
+   EMOJI PICKER (Task 5.2)
+-------------------------------------------------------------------------- */
+.emoji-picker {
+    position: fixed;
+    width: 240px;
+    border-radius: 10px;
+    z-index: 1100;
+    padding: 10px;
+    border-color: var(--neon-secondary) !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 0 16px var(--neon-secondary-glow);
+}
+.emoji-picker.hidden { display: none; }
+.emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+}
+.emoji-option {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 4px;
+    transition: all 0.12s;
+    text-align: center;
+    line-height: 1.2;
+}
+.emoji-option:hover {
+    background: rgba(0, 240, 255, 0.1);
+    border-color: var(--neon-secondary);
+    transform: scale(1.15);
+}
+
+/* --------------------------------------------------------------------------
+   CYBER MODAL (Tasks 1.3–1.4)
+-------------------------------------------------------------------------- */
+.cyber-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    background: rgba(0, 0, 0, 0.82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fade-in 0.25s ease;
+}
+.cyber-modal-overlay.hidden { display: none; }
+
+.cyber-modal-card {
+    text-align: center;
+    padding: 36px 32px;
+    border-radius: 14px;
+    border-color: var(--neon-primary) !important;
+    box-shadow: 0 0 50px var(--neon-primary-glow), 0 16px 50px rgba(0,0,0,0.8);
+    max-width: 380px;
+    width: 90vw;
+    animation: slide-up 0.3s var(--transition-curve);
+}
+.cyber-modal-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+}
+.cyber-modal-msg {
+    font-size: 0.9rem;
+    color: var(--text-main);
+    margin-bottom: 24px;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+    white-space: pre-line;
+}
+.cyber-modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+.cyber-modal-actions .hud-btn {
+    min-width: 100px;
+    padding: 10px 16px;
+    font-size: 0.72rem;
+}
+

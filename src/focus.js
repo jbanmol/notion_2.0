@@ -267,9 +267,9 @@ class MissionHUD {
         lucide.createIcons();
     }
 
-    hide() {
+    hide(keepRunning = false) {
         this.hudEl.classList.add('hidden');
-        this.pause();
+        if (!keepRunning) this.pause();
     }
 
     /* 3.1 — Construct Pomodoro countdown interval */
@@ -350,18 +350,29 @@ class MissionHUD {
         this.modalEl.classList.add('hidden');
         this.reset();
     }
+
+    /** Update the timer pill in the header with current time */
+    updatePill() {
+        const pillEl = document.getElementById('timer-pill-display');
+        if (pillEl) {
+            const m = Math.floor(this.remaining / 60);
+            const s = this.remaining % 60;
+            pillEl.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+    }
 }
 
 /* --------------------------------------------------------------------------
-   FOCUS CONTROLLER — Master orchestrator
+   FOCUS CONTROLLER — Ambient effects + audio orchestrator
+   (Timer is now independent — see MissionHUD exported below)
    -------------------------------------------------------------------------- */
 
 export class FocusController {
-    constructor() {
+    constructor(missionHUD) {
         this.active = false;
-        this.audio   = new CyberAudio();
-        this.snow    = new SnowSystem(document.getElementById('focus-snow-canvas'));
-        this.hud     = new MissionHUD(this.audio);
+        this.audio  = new CyberAudio();
+        this.snow   = new SnowSystem(document.getElementById('focus-snow-canvas'));
+        this.hud    = missionHUD; // shared HUD instance
 
         this.toggleBtn   = document.getElementById('focus-toggle-btn');
         this.ambientBg   = document.getElementById('focus-ambient-bg');
@@ -370,8 +381,8 @@ export class FocusController {
 
         this._bindKeys();
         this._bindToggle();
-        this._bindAudioSelect();  // 2.3
-        this._bindEditorAudio();  // 2.2
+        this._bindAudioSelect();
+        this._bindEditorAudio();
     }
 
     /* Keyboard shortcut Cmd+Shift+F */
@@ -387,90 +398,70 @@ export class FocusController {
     /* Toggle button */
     _bindToggle() {
         this.toggleBtn.addEventListener('click', () => {
-            this.audio.warm(); // warm on first user click
+            this.audio.warm();
             this.toggle();
         });
     }
 
     toggle() {
         this.active = !this.active;
-        if (this.active) {
-            this._engage();
-        } else {
-            this._disengage();
-        }
+        if (this.active) this._engage();
+        else             this._disengage();
     }
 
     /* --- Focus ON --- */
     _engage() {
-        // 1.4 — body class collapse transition
         document.body.classList.add('focus-mode-active');
-
-        // Ambient nebula
         this.ambientBg.classList.remove('hidden');
         requestAnimationFrame(() => this.ambientBg.classList.add('visible'));
-
-        // Digital snow
         this.snowCanvas.classList.remove('hidden');
         requestAnimationFrame(() => {
             this.snowCanvas.classList.add('visible');
             this.snow.start();
         });
-
-        // Show HUD
-        this.hud.show();
+        // Show HUD in focus mode
+        if (this.hud) this.hud.show();
     }
 
     /* --- Focus OFF --- */
     _disengage() {
         document.body.classList.remove('focus-mode-active');
-
-        // Fade nebula out then hide
         this.ambientBg.classList.remove('visible');
         setTimeout(() => this.ambientBg.classList.add('hidden'), 1200);
-
-        // Fade snow out then stop
         this.snowCanvas.classList.remove('visible');
         setTimeout(() => {
             this.snow.stop();
             this.snowCanvas.classList.add('hidden');
         }, 1000);
-
-        // Hide HUD (but don't reset timer)
-        this.hud.hide();
+        // Hide HUD but keep timer running
+        if (this.hud) this.hud.hide(true);
     }
 
-    /* 2.3 — Wire audio selector to switch profiles instantly */
+    /* 2.3 — Wire audio selector */
     _bindAudioSelect() {
         this.audioSelect.addEventListener('change', (e) => {
             this.audio.setProfile(e.target.value);
-            // Play a sample click so the user can hear the profile
             this.audio.warm();
             this.audio.click();
         });
     }
 
-    /* 2.2 — Bind keypress events inside editor to trigger synthesized clicks */
+    /* 2.2 — Bind keydown in editor to synthesized clicks */
     _bindEditorAudio() {
-        // Warm up on first body interaction
         document.addEventListener('click', () => this.audio.warm(), { once: true });
-
-        // Listen for keydown events on contenteditable blocks and title input
         document.addEventListener('keydown', (e) => {
-            if (!this.active) return; // only in focus mode
+            if (!this.active) return;
             const target = e.target;
             const isEditorTarget =
                 target.contentEditable === 'true' ||
                 target.id === 'document-title' ||
                 target.classList.contains('block-content');
-
             if (!isEditorTarget) return;
-
-            // Only synthesize for printable characters & backspace
             const isPrintable = e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete';
             if (!isPrintable) return;
-
             this.audio.click();
         });
     }
 }
+
+export { MissionHUD };

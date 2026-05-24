@@ -1,4 +1,7 @@
-## ADDED Requirements
+## Purpose
+Zen Focus Mode provides an immersive, distraction-free environment for writing and deep thinking, featuring ambient neon particle effects, keypress synthesizers, and a decoupled intrusion/Pomodoro countdown HUD.
+
+## Requirements
 
 ### Requirement: Zen Workspace Focus Toggle
 The system MUST collapse the folders sidebar tree, dim the header navigation breadcrumbs, and center the editor viewport when Focus Mode is engaged via `#focus-toggle-btn` or `Cmd+Shift+F` keyboard hotkeys.

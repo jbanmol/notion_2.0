@@ -12,7 +12,10 @@ const DEFAULT_WORKSPACE_DATA = {
         'doc-security-audit': {
             id: 'doc-security-audit',
             title: '🌐 GRID_SECURITY_AUDIT.LOG',
-            icon: 'shield-alert',
+            icon: '🛡️',
+            pinned: false,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
             blocks: [
                 { id: 'b1', type: 'heading-1', content: 'SYSTEM SECURITY INTEGRITY AUDIT' },
                 { id: 'b2', type: 'text', content: 'Telemetry logs detected unauthorized penetration queries scanning Sector 4 nodes. Bio-signature matches suggest proxy-tunneling via remote orbital relays.' },
@@ -32,7 +35,10 @@ const DEFAULT_WORKSPACE_DATA = {
         'doc-crew-logs': {
             id: 'doc-crew-logs',
             title: '👾 NEON_RUNNER_CREDENTIALS',
-            icon: 'users',
+            icon: '👾',
+            pinned: false,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
             blocks: [
                 { id: 'b10', type: 'heading-1', content: 'ACTIVE NEON RUNNER ROSTER' },
                 { id: 'b11', type: 'text', content: 'The following high-profile data runners are contracted under Project Aegis. Decryption keys required for bio-linked telemetry.' },
@@ -55,7 +61,10 @@ const DEFAULT_WORKSPACE_DATA = {
         'doc-quantum-deck': {
             id: 'doc-quantum-deck',
             title: '💾 DECK_HARDWARE_SPECS',
-            icon: 'cpu',
+            icon: '💾',
+            pinned: true,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
             blocks: [
                 { id: 'b15', type: 'heading-1', content: 'QUANTUM CHIP DECK SCHEMATICS' },
                 { id: 'b16', type: 'text', content: 'System diagnostics of custom hardware deck. Upgraded with cyber-enhanced quantum capacitors.' },
@@ -72,6 +81,15 @@ const DEFAULT_WORKSPACE_DATA = {
     }
 };
 
+/** Backfill missing metadata fields for documents loaded from old localStorage */
+function backfillDocument(doc) {
+    if (!doc.icon)      doc.icon = '📄';
+    if (doc.pinned === undefined) doc.pinned = false;
+    if (!doc.createdAt) doc.createdAt = Date.now();
+    if (!doc.updatedAt) doc.updatedAt = Date.now();
+    return doc;
+}
+
 class StateManager {
     constructor() {
         this.data = this.loadFromStorage();
@@ -82,7 +100,10 @@ class StateManager {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
             try {
-                return JSON.parse(stored);
+                const parsed = JSON.parse(stored);
+                // Backfill metadata on all docs
+                Object.values(parsed.documents).forEach(doc => backfillDocument(doc));
+                return parsed;
             } catch (e) {
                 console.error("Error loading cached state, seeding default telemetry instead.", e);
             }
@@ -135,6 +156,7 @@ class StateManager {
     updateDocumentTitle(id, newTitle) {
         if (this.data.documents[id]) {
             this.data.documents[id].title = newTitle;
+            this.data.documents[id].updatedAt = Date.now();
             this.saveToStorage();
         }
     }
@@ -142,16 +164,47 @@ class StateManager {
     updateDocumentBlocks(id, newBlocks) {
         if (this.data.documents[id]) {
             this.data.documents[id].blocks = newBlocks;
+            this.data.documents[id].updatedAt = Date.now();
             this.saveToStorage();
         }
     }
 
+    updateDocumentIcon(id, emoji) {
+        if (this.data.documents[id]) {
+            this.data.documents[id].icon = emoji;
+            this.data.documents[id].updatedAt = Date.now();
+            this.saveToStorage();
+        }
+    }
+
+    toggleDocumentPin(id) {
+        if (this.data.documents[id]) {
+            this.data.documents[id].pinned = !this.data.documents[id].pinned;
+            this.saveToStorage();
+        }
+    }
+
+    moveBlock(docId, fromIndex, toIndex) {
+        const doc = this.data.documents[docId];
+        if (!doc) return;
+        const blocks = [...doc.blocks];
+        const [moved] = blocks.splice(fromIndex, 1);
+        blocks.splice(toIndex, 0, moved);
+        doc.blocks = blocks;
+        doc.updatedAt = Date.now();
+        this.saveToStorage();
+    }
+
     createNewDocument() {
         const id = 'doc-' + Date.now();
+        const now = Date.now();
         this.data.documents[id] = {
-            id: id,
+            id,
             title: 'NEW_UNNAMED_NODE.EXE',
-            icon: 'file-text',
+            icon: '📄',
+            pinned: false,
+            createdAt: now,
+            updatedAt: now,
             blocks: [
                 { id: 'block-' + Date.now(), type: 'text', content: '' }
             ]
@@ -163,8 +216,7 @@ class StateManager {
 
     deleteDocument(id) {
         if (Object.keys(this.data.documents).length <= 1) {
-            alert("SYSTEM ERROR: CANNOT PURGE CORE NODE. AT LEAST ONE ACTIVE WORKSPACE ELEMENT REQUIRED.");
-            return;
+            return false; // Signal callers to show a cyber modal instead
         }
         
         delete this.data.documents[id];
@@ -172,7 +224,20 @@ class StateManager {
             this.data.activeDocId = Object.keys(this.data.documents)[0];
         }
         this.saveToStorage();
+        return true;
     }
 }
 
 export const state = new StateManager();
+
+/** Utility: format a timestamp as relative time (e.g. "2h ago") */
+export function relativeTime(ts) {
+    const diff = Date.now() - ts;
+    const mins  = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days  = Math.floor(diff / 86400000);
+    if (mins  < 1)   return 'just now';
+    if (mins  < 60)  return `${mins}m ago`;
+    if (hours < 24)  return `${hours}h ago`;
+    return `${days}d ago`;
+}

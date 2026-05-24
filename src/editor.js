@@ -4,31 +4,209 @@
 
 import { state } from './state.js';
 
+const BLOCK_TYPES = [
+    { type: 'text',      label: 'Text',      icon: 'type',          hotkey: '/text' },
+    { type: 'heading-1', label: 'Heading 1', icon: 'heading-1',     hotkey: '/h1'   },
+    { type: 'heading-2', label: 'Heading 2', icon: 'heading-2',     hotkey: '/h2'   },
+    { type: 'heading-3', label: 'Heading 3', icon: 'heading-3',     hotkey: '/h3'   },
+    { type: 'code',      label: 'Code',      icon: 'code',          hotkey: '/code' },
+    { type: 'checklist', label: 'Checklist', icon: 'check-square',  hotkey: '/check'},
+];
+
 export class EditorComponent {
     constructor() {
-        this.titleInputEl = document.getElementById('document-title');
-        this.workspaceEl = document.getElementById('editor-workspace');
-        
-        this.activeDoc = null;
-        this.initEventListeners();
+        this.titleInputEl  = document.getElementById('document-title');
+        this.workspaceEl   = document.getElementById('editor-workspace');
+        this.wordCountEl   = document.getElementById('word-count-display');
+        this.slashMenuEl   = document.getElementById('slash-menu');
+
+        this.activeDoc      = null;
+        this.slashActiveIdx = -1;   // index of block that triggered slash menu
+        this.slashQuery     = '';
+        this.slashSelected  = 0;    // keyboard nav index
+        this.dragFromIndex  = -1;
+
+        this._initSlashMenu();
+        this._initEventListeners();
     }
 
-    initEventListeners() {
-        // Document Title Change listener
-        this.titleInputEl.addEventListener('input', () => {
-            if (this.activeDoc) {
-                const newTitle = this.titleInputEl.value;
-                state.updateDocumentTitle(this.activeDoc.id, newTitle);
-                
-                // Trigger sidebar & breadcrumbs refresh via state subscription in app.js
+    /* -----------------------------------------------------------------------
+       SLASH COMMAND MENU (Tasks 2.2 – 2.5)
+    ----------------------------------------------------------------------- */
+
+    _initSlashMenu() {
+        // Close slash menu on outside click
+        document.addEventListener('click', (e) => {
+            if (!this.slashMenuEl.contains(e.target)) {
+                this._closeSlashMenu();
             }
         });
     }
+
+    _openSlashMenu(blockIndex, anchorEl) {
+        this.slashActiveIdx = blockIndex;
+        this.slashQuery     = '';
+        this.slashSelected  = 0;
+        this._renderSlashItems(BLOCK_TYPES);
+
+        // Position below the cursor/block
+        const rect = anchorEl.getBoundingClientRect();
+        let top = rect.bottom + 6;
+        const menuH = 280; // estimated
+        if (top + menuH > window.innerHeight) top = rect.top - menuH - 6;
+
+        this.slashMenuEl.style.top  = `${top}px`;
+        this.slashMenuEl.style.left = `${Math.max(rect.left, 8)}px`;
+        this.slashMenuEl.classList.remove('hidden');
+        lucide.createIcons();
+    }
+
+    _closeSlashMenu() {
+        this.slashMenuEl.classList.add('hidden');
+        this.slashActiveIdx = -1;
+        this.slashQuery     = '';
+    }
+
+    _renderSlashItems(items) {
+        this.slashSelected = Math.max(0, Math.min(this.slashSelected, items.length - 1));
+        this.slashMenuEl.innerHTML = items.length
+            ? items.map((item, i) => `
+                <div class="slash-item ${i === this.slashSelected ? 'active' : ''}" data-type="${item.type}">
+                    <i data-lucide="${item.icon}" class="slash-item-icon"></i>
+                    <span class="slash-item-label">${item.label}</span>
+                    <span class="slash-item-hotkey font-mono">${item.hotkey}</span>
+                </div>`).join('')
+            : `<div class="slash-empty font-mono">NO_COMMANDS_FOUND</div>`;
+
+        // Bind click on each item
+        this.slashMenuEl.querySelectorAll('.slash-item').forEach(el => {
+            el.addEventListener('mousedown', (e) => {
+                e.preventDefault(); // don't blur the contenteditable
+                this._selectSlashItem(el.dataset.type);
+            });
+        });
+    }
+
+    _filterSlashMenu(query) {
+        this.slashQuery    = query;
+        this.slashSelected = 0;
+        const filtered = BLOCK_TYPES.filter(b =>
+            b.label.toLowerCase().includes(query.toLowerCase()) ||
+            b.hotkey.includes(query.toLowerCase())
+        );
+        this._renderSlashItems(filtered);
+        lucide.createIcons();
+    }
+
+    _selectSlashItem(newType) {
+        if (this.slashActiveIdx < 0) return;
+        this._closeSlashMenu();
+        this.convertBlockType(this.slashActiveIdx, newType);
+    }
+
+    /* -----------------------------------------------------------------------
+       BLOCK TYPE CONVERSION (Tasks 2.5, 4.2)
+    ----------------------------------------------------------------------- */
+
+    convertBlockType(index, newType) {
+        if (!this.activeDoc) return;
+        const block = this.activeDoc.blocks[index];
+        if (!block) return;
+
+        // Grab current text content from DOM before state update
+        const blockEl = this.workspaceEl.querySelector(`[data-index="${index}"] .block-content`);
+        const currentContent = blockEl ? (blockEl.textContent || '') : (block.content || '');
+
+        const updated = this.activeDoc.blocks.map((b, i) =>
+            i === index ? { ...b, type: newType, content: currentContent, checked: false } : b
+        );
+        state.updateDocumentBlocks(this.activeDoc.id, updated);
+        this.activeDoc.blocks = updated;
+        this.renderBlocks();
+
+        // Refocus the same block
+        setTimeout(() => {
+            const el = this.workspaceEl.querySelector(`[data-index="${index}"] .block-content`);
+            if (el) { el.focus(); this._placeCaretAtEnd(el); }
+        }, 30);
+    }
+
+    _placeCaretAtEnd(el) {
+        const range = document.createRange();
+        const sel   = window.getSelection();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
+
+    /* -----------------------------------------------------------------------
+       CORE EDITOR EVENT LISTENERS
+    ----------------------------------------------------------------------- */
+
+    _initEventListeners() {
+        this.titleInputEl.addEventListener('input', () => {
+            if (this.activeDoc) {
+                state.updateDocumentTitle(this.activeDoc.id, this.titleInputEl.value);
+            }
+        });
+
+        // Global keydown for slash menu navigation
+        document.addEventListener('keydown', (e) => {
+            if (this.slashMenuEl.classList.contains('hidden')) return;
+            const items = [...this.slashMenuEl.querySelectorAll('.slash-item')];
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                this.slashSelected = Math.min(this.slashSelected + 1, items.length - 1);
+                this._renderSlashItems(this._currentFilteredItems());
+                lucide.createIcons();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                this.slashSelected = Math.max(this.slashSelected - 1, 0);
+                this._renderSlashItems(this._currentFilteredItems());
+                lucide.createIcons();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                const active = this.slashMenuEl.querySelector('.slash-item.active');
+                if (active) this._selectSlashItem(active.dataset.type);
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                // Remove the typed /query from the block
+                this._removeSlashQuery();
+                this._closeSlashMenu();
+            }
+        });
+    }
+
+    _currentFilteredItems() {
+        return BLOCK_TYPES.filter(b =>
+            b.label.toLowerCase().includes(this.slashQuery.toLowerCase()) ||
+            b.hotkey.includes(this.slashQuery.toLowerCase())
+        );
+    }
+
+    _removeSlashQuery() {
+        if (this.slashActiveIdx < 0) return;
+        const el = this.workspaceEl.querySelector(`[data-index="${this.slashActiveIdx}"] .block-content`);
+        if (!el) return;
+        // Strip the /query text
+        const text = el.textContent || '';
+        const slashIdx = text.lastIndexOf('/');
+        if (slashIdx >= 0) {
+            el.textContent = text.substring(0, slashIdx);
+            this._placeCaretAtEnd(el);
+        }
+    }
+
+    /* -----------------------------------------------------------------------
+       DOCUMENT LOAD & RENDER
+    ----------------------------------------------------------------------- */
 
     loadDocument(doc) {
         this.activeDoc = doc;
         this.titleInputEl.value = doc.title;
         this.renderBlocks();
+        this.updateWordCount();
     }
 
     renderBlocks() {
@@ -44,63 +222,123 @@ export class EditorComponent {
             this.workspaceEl.appendChild(blockEl);
         });
 
-        // Initialize Lucide icons for embedded components
-        if (window.lucide) {
-            window.lucide.createIcons();
-        }
+        if (window.lucide) window.lucide.createIcons();
     }
 
-    createBlockElement(block, index) {
+    /* -----------------------------------------------------------------------
+       BLOCK ELEMENT CREATION (Tasks 3.1–3.3, 4.1)
+    ----------------------------------------------------------------------- */
+
+    createBlockElement(block, index, animate = false) {
         const div = document.createElement('div');
-        div.className = `editor-block block-${block.type}`;
-        div.dataset.id = block.id;
+        div.className = `editor-block block-${block.type}${animate ? ' block-enter' : ''}`;
+        div.dataset.id    = block.id;
         div.dataset.index = index;
 
-        // Custom drag handles (HTML5 drag and drop ready)
+        // === Drag-and-Drop (Tasks 3.1–3.3) ===
+        div.draggable = true;
+
+        div.addEventListener('dragstart', (e) => {
+            this.dragFromIndex = index;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', String(index));
+            setTimeout(() => div.classList.add('dragging'), 0);
+        });
+
+        div.addEventListener('dragend', () => {
+            div.classList.remove('dragging');
+            this.workspaceEl.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
+            this.workspaceEl.querySelectorAll('.drop-indicator').forEach(el => el.remove());
+        });
+
+        div.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            // Show drop indicator
+            this.workspaceEl.querySelectorAll('.drop-indicator').forEach(el => el.remove());
+            const rect = div.getBoundingClientRect();
+            const isAbove = e.clientY < rect.top + rect.height / 2;
+            const indicator = document.createElement('div');
+            indicator.className = 'drop-indicator';
+            if (isAbove) {
+                div.parentNode.insertBefore(indicator, div);
+            } else {
+                div.parentNode.insertBefore(indicator, div.nextSibling);
+            }
+        });
+
+        div.addEventListener('dragleave', (e) => {
+            if (!div.contains(e.relatedTarget)) {
+                div.classList.remove('drop-target');
+            }
+        });
+
+        div.addEventListener('drop', (e) => {
+            e.preventDefault();
+            this.workspaceEl.querySelectorAll('.drop-indicator').forEach(el => el.remove());
+            div.classList.remove('drop-target');
+
+            const fromIdx = this.dragFromIndex;
+            if (fromIdx < 0 || fromIdx === index) return;
+
+            // Determine above/below
+            const rect = div.getBoundingClientRect();
+            const isAbove = e.clientY < rect.top + rect.height / 2;
+            let toIdx = index;
+            if (!isAbove && fromIdx < index) toIdx = index;
+            else if (!isAbove && fromIdx > index) toIdx = index + 1;
+            else if (isAbove && fromIdx < index) toIdx = index - 1;
+            else toIdx = index;
+
+            state.moveBlock(this.activeDoc.id, fromIdx, toIdx);
+            this.activeDoc.blocks = state.getActiveDocument().blocks;
+            this.dragFromIndex = -1;
+            this.renderBlocks();
+        });
+
+        // === Block Drag Handle ===
         const dragHandle = document.createElement('div');
         dragHandle.className = 'block-drag-handle';
         dragHandle.innerHTML = `<i data-lucide="grip-vertical"></i>`;
         div.appendChild(dragHandle);
 
-        // Core block container depending on block type
+        // === Block Type Switcher Button (Task 4.1) ===
+        const typeBtn = document.createElement('button');
+        typeBtn.className = 'block-type-btn';
+        typeBtn.title = 'Change block type';
+        const typeIcon = BLOCK_TYPES.find(t => t.type === block.type)?.icon || 'type';
+        typeBtn.innerHTML = `<i data-lucide="${typeIcon}"></i>`;
+        typeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this._showTypeSwitcher(index, typeBtn);
+        });
+        div.appendChild(typeBtn);
+
+        // === Core Block Content ===
         const contentContainer = document.createElement('div');
         contentContainer.className = 'block-content';
 
         if (block.type === 'checklist') {
-            // Checklist checkbox input
             const chk = document.createElement('input');
             chk.type = 'checkbox';
             chk.className = 'checklist-chk';
             chk.checked = !!block.checked;
-            
-            if (block.checked) {
-                div.classList.add('checked');
-            }
+            if (block.checked) div.classList.add('checked');
 
             chk.addEventListener('change', () => {
                 block.checked = chk.checked;
-                if (chk.checked) {
-                    div.classList.add('checked');
-                } else {
-                    div.classList.remove('checked');
-                }
+                div.classList.toggle('checked', chk.checked);
                 this.saveCurrentBlockState();
             });
             div.appendChild(chk);
         }
 
         if (block.type === 'table') {
-            // Cyber Table Visual Mock
             let tableData = { headers: [], rows: [] };
-            try {
-                tableData = JSON.parse(block.content);
-            } catch (e) {
-                console.error("JSON formatting error inside block table specs", e);
-            }
+            try { tableData = JSON.parse(block.content); } catch (e) {}
 
             const table = document.createElement('table');
             table.className = 'cyber-table';
-
             const thead = document.createElement('thead');
             const trHead = document.createElement('tr');
             tableData.headers.forEach(h => {
@@ -110,7 +348,6 @@ export class EditorComponent {
             });
             thead.appendChild(trHead);
             table.appendChild(thead);
-
             const tbody = document.createElement('tbody');
             tableData.rows.forEach(r => {
                 const tr = document.createElement('tr');
@@ -121,133 +358,184 @@ export class EditorComponent {
                 });
                 tbody.appendChild(tr);
             });
-            tbody.appendChild(tbody);
             table.appendChild(tbody);
-
             contentContainer.appendChild(table);
         } else if (block.type === 'embed') {
-            // Embed holographic card mock
             const embedCard = document.createElement('div');
             embedCard.className = 'embed-info';
             embedCard.innerHTML = `
-                <div class="embed-preview-box">
-                    <i data-lucide="globe"></i>
-                </div>
+                <div class="embed-preview-box"><i data-lucide="globe"></i></div>
                 <div class="embed-details">
                     <div class="embed-title font-mono">${block.title || 'EXTERNAL TELEMETRY LINK'}</div>
                     <div class="embed-url font-mono cyan">${block.url}</div>
-                </div>
-            `;
-            
-            // Set styles of dynamic flex
+                </div>`;
             contentContainer.appendChild(embedCard);
             contentContainer.style.display = 'flex';
             contentContainer.style.alignItems = 'center';
             contentContainer.style.gap = '16px';
         } else {
-            // General text elements (paragraphs, headers, code snippets)
+            // Editable text blocks
             contentContainer.contentEditable = true;
             contentContainer.innerHTML = block.content || '';
-            contentContainer.setAttribute('placeholder', this.getPlaceholderForType(block.type));
+            contentContainer.setAttribute('placeholder', this._placeholderFor(block.type));
 
-            // Content changes listeners
-            contentContainer.addEventListener('blur', () => this.saveCurrentBlockState());
-            contentContainer.addEventListener('keydown', (e) => this.handleKeyboardNavigation(e, index));
+            // Slash command detection (Task 2.2)
+            contentContainer.addEventListener('input', () => {
+                const text = contentContainer.textContent || '';
+                const slashIdx = text.lastIndexOf('/');
+
+                if (slashIdx >= 0) {
+                    const query = text.substring(slashIdx + 1);
+                    if (this.slashMenuEl.classList.contains('hidden')) {
+                        this._openSlashMenu(index, contentContainer);
+                    }
+                    this._filterSlashMenu(query);
+                } else {
+                    this._closeSlashMenu();
+                }
+
+                this.updateWordCount();
+            });
+
+            contentContainer.addEventListener('blur', () => {
+                this.saveCurrentBlockState();
+                this.updateWordCount();
+            });
+
+            contentContainer.addEventListener('keydown', (e) => {
+                this._handleKeyboardNavigation(e, index);
+            });
         }
 
         div.appendChild(contentContainer);
         return div;
     }
 
-    getPlaceholderForType(type) {
-        switch (type) {
-            case 'heading-1': return 'HEADING_1_SECTOR...';
-            case 'heading-2': return 'HEADING_2_SECTOR...';
-            case 'heading-3': return 'HEADING_3_SECTOR...';
-            case 'code': return 'Write custom telemetry algorithm code here...';
-            default: return 'Start writing cyber logs (type / for commands)...';
-        }
+    /* -----------------------------------------------------------------------
+       BLOCK TYPE SWITCHER DROPDOWN (Task 4.1)
+    ----------------------------------------------------------------------- */
+
+    _showTypeSwitcher(index, anchorEl) {
+        // Reuse slash menu as type switcher
+        this.slashActiveIdx = index;
+        this.slashQuery     = '';
+        this.slashSelected  = 0;
+        this._renderSlashItems(BLOCK_TYPES);
+
+        const rect = anchorEl.getBoundingClientRect();
+        this.slashMenuEl.style.top  = `${rect.bottom + 4}px`;
+        this.slashMenuEl.style.left = `${rect.left}px`;
+        this.slashMenuEl.classList.remove('hidden');
+        lucide.createIcons();
     }
+
+    /* -----------------------------------------------------------------------
+       WORD COUNT (Tasks 4.4–4.5)
+    ----------------------------------------------------------------------- */
+
+    updateWordCount() {
+        if (!this.wordCountEl) return;
+        const blocks = this.activeDoc?.blocks || [];
+        const text = blocks
+            .filter(b => !['table', 'embed'].includes(b.type))
+            .map(b => {
+                const el = this.workspaceEl.querySelector(`[data-id="${b.id}"] .block-content`);
+                return el ? (el.textContent || '') : (b.content || '');
+            })
+            .join(' ');
+
+        const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).filter(w => w).length;
+        const readMin = Math.max(1, Math.round(words / 200));
+        const readLabel = words < 200 ? '< 1 min read' : `${readMin} min read`;
+        this.wordCountEl.textContent = `${words} words · ${readLabel}`;
+    }
+
+    /* -----------------------------------------------------------------------
+       DRAG & DROP STATE SAVE (Task 3.4)
+    ----------------------------------------------------------------------- */
 
     saveCurrentBlockState() {
         if (!this.activeDoc) return;
-
         const blockEls = this.workspaceEl.querySelectorAll('.editor-block');
         const updatedBlocks = [];
 
         blockEls.forEach(el => {
-            const id = el.dataset.id;
+            const id    = el.dataset.id;
             const index = parseInt(el.dataset.index);
-            const originalBlock = this.activeDoc.blocks[index];
+            const orig  = this.activeDoc.blocks[index];
+            if (!orig) return;
 
-            if (!originalBlock) return;
+            let content = orig.content;
+            let checked = orig.checked;
 
-            let content = '';
-            let checked = originalBlock.checked;
-
-            if (originalBlock.type === 'checklist') {
+            if (orig.type === 'checklist') {
                 const chk = el.querySelector('.checklist-chk');
                 checked = chk ? chk.checked : false;
                 const contentEl = el.querySelector('.block-content');
                 content = contentEl ? contentEl.innerHTML : '';
-            } else if (originalBlock.type === 'table' || originalBlock.type === 'embed') {
-                content = originalBlock.content; // Static payload configurations
+            } else if (orig.type === 'table' || orig.type === 'embed') {
+                content = orig.content;
             } else {
                 const contentEl = el.querySelector('.block-content');
                 content = contentEl ? contentEl.innerHTML : '';
             }
 
-            updatedBlocks.push({
-                ...originalBlock,
-                content: content,
-                checked: checked
-            });
+            updatedBlocks.push({ ...orig, content, checked });
         });
 
         state.updateDocumentBlocks(this.activeDoc.id, updatedBlocks);
+        this.activeDoc.blocks = updatedBlocks;
     }
 
-    handleKeyboardNavigation(e, index) {
-        // Minimal editor commands for initial scaffolding
+    /* -----------------------------------------------------------------------
+       KEYBOARD NAVIGATION (Tasks 2.4)
+    ----------------------------------------------------------------------- */
+
+    _handleKeyboardNavigation(e, index) {
         if (e.key === 'Enter') {
             e.preventDefault();
-            // Enter key spawns a standard paragraph text block below current block
-            const currentBlock = this.activeDoc.blocks[index];
-            const newBlock = {
-                id: 'block-' + Date.now(),
-                type: 'text',
-                content: ''
-            };
-
-            const updatedBlocks = [...this.activeDoc.blocks];
-            updatedBlocks.splice(index + 1, 0, newBlock);
-            
-            state.updateDocumentBlocks(this.activeDoc.id, updatedBlocks);
+            this._closeSlashMenu();
+            const newBlock = { id: 'block-' + Date.now(), type: 'text', content: '' };
+            const updated = [...this.activeDoc.blocks];
+            updated.splice(index + 1, 0, newBlock);
+            state.updateDocumentBlocks(this.activeDoc.id, updated);
+            this.activeDoc.blocks = updated;
             this.renderBlocks();
 
-            // Auto focus on next block element
+            // Animate new block + focus
             setTimeout(() => {
-                const nextBlockEl = this.workspaceEl.querySelector(`[data-index="${index + 1}"] .block-content`);
-                if (nextBlockEl) nextBlockEl.focus();
-            }, 50);
+                const nextEl = this.workspaceEl.querySelector(`[data-index="${index + 1}"]`);
+                if (nextEl) nextEl.classList.add('block-enter');
+                const nextContent = this.workspaceEl.querySelector(`[data-index="${index + 1}"] .block-content`);
+                if (nextContent) nextContent.focus();
+            }, 20);
         }
 
         if (e.key === 'Backspace') {
             const contentEl = e.target;
-            // If the block is completely empty, delete it
             if (contentEl.textContent.trim() === '' && this.activeDoc.blocks.length > 1) {
                 e.preventDefault();
-                const updatedBlocks = this.activeDoc.blocks.filter((_, idx) => idx !== index);
-                state.updateDocumentBlocks(this.activeDoc.id, updatedBlocks);
+                this._closeSlashMenu();
+                const updated = this.activeDoc.blocks.filter((_, idx) => idx !== index);
+                state.updateDocumentBlocks(this.activeDoc.id, updated);
+                this.activeDoc.blocks = updated;
                 this.renderBlocks();
-
-                // Focus on previous block
                 setTimeout(() => {
-                    const prevIndex = Math.max(0, index - 1);
-                    const prevBlockEl = this.workspaceEl.querySelector(`[data-index="${prevIndex}"] .block-content`);
-                    if (prevBlockEl) prevBlockEl.focus();
-                }, 50);
+                    const prevIdx = Math.max(0, index - 1);
+                    const prevEl = this.workspaceEl.querySelector(`[data-index="${prevIdx}"] .block-content`);
+                    if (prevEl) prevEl.focus();
+                }, 20);
             }
+        }
+    }
+
+    _placeholderFor(type) {
+        switch (type) {
+            case 'heading-1': return 'Heading 1...';
+            case 'heading-2': return 'Heading 2...';
+            case 'heading-3': return 'Heading 3...';
+            case 'code':      return 'Write code here...';
+            default:          return 'Type / for commands...';
         }
     }
 }
