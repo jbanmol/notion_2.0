@@ -915,3 +915,223 @@ body {
     0% { transform: translateY(20px); opacity: 0; }
     100% { transform: translateY(0); opacity: 1; }
 }
+
+/* ==========================================================================
+   ZEN DISTRACTION-FREE WRITING & AMBIENT GLOW ANIMATIONS
+   ========================================================================== */
+
+/* Active Focus state transitions across global workspace */
+.focus-mode-active #sidebar-panel {
+    transform: translateX(-320px);
+    width: 0 !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.focus-mode-active #viewport-header {
+    border-bottom-color: transparent;
+}
+
+.focus-mode-active #viewport-header .breadcrumbs {
+    opacity: 0.05;
+    transition: opacity 0.5s ease;
+}
+
+.focus-mode-active #viewport-header .breadcrumbs:hover {
+    opacity: 0.8;
+}
+
+/* Toggle buttons glow modifications */
+#focus-toggle-btn.active {
+    border-color: var(--neon-accent);
+    color: var(--neon-accent);
+    box-shadow: 0 0 15px var(--neon-accent-glow);
+}
+
+/* Centered focus editor columns */
+.focus-mode-active #editor-viewport-container {
+    max-width: 850px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.focus-mode-active .editor-scroller {
+    padding: 60px 4% 120px 4%;
+}
+
+/* Ambient Visual Backdrop Overlays */
+.focus-ambient-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2;
+    overflow: hidden;
+    pointer-events: none;
+    background-color: #030307;
+    transition: opacity 1s ease;
+}
+
+.focus-ambient-bg.hidden {
+    opacity: 0;
+    display: none;
+}
+
+/* Slow-moving lo-fi ambient color fields */
+.neon-nebula {
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    top: -25%;
+    left: -25%;
+    background: radial-gradient(circle at 30% 20%, rgba(157, 0, 255, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(0, 240, 255, 0.1) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(255, 0, 127, 0.08) 0%, transparent 50%);
+    filter: blur(80px);
+    animation: nebula-drift 32s ease-in-out infinite alternate;
+}
+
+.neon-nebula-pulse {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 120%, rgba(0, 240, 255, 0.05) 0%, transparent 60%);
+    filter: blur(40px);
+    animation: breathing-glow 6s ease-in-out infinite alternate;
+}
+
+/* Simulated atmospheric digital dust/snow rain */
+.digital-snow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 10% 30%, rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+        radial-gradient(circle at 75% 15%, rgba(255, 255, 255, 0.012) 1.5px, transparent 1.5px),
+        radial-gradient(circle at 45% 85%, rgba(255, 255, 255, 0.008) 1px, transparent 1px),
+        radial-gradient(circle at 90% 60%, rgba(255, 255, 255, 0.015) 2px, transparent 2px);
+    background-size: 300px 300px;
+    animation: snow-down 40s linear infinite;
+}
+
+@keyframes nebula-drift {
+    0% { transform: rotate(0deg) scale(1); }
+    100% { transform: rotate(8deg) scale(1.15); }
+}
+
+@keyframes breathing-glow {
+    0% { opacity: 0.3; }
+    100% { opacity: 0.95; }
+}
+
+@keyframes snow-down {
+    0% { background-position: 0 0; }
+    100% { background-position: 100px 300px; }
+}
+
+/* ==========================================================================
+   HOLOGRAPHIC MISSION INTRUSION TIMER HUD
+   ========================================================================== */
+
+.mission-timer-hud {
+    position: absolute;
+    top: 90px;
+    right: 32px;
+    width: 250px;
+    border-radius: 8px;
+    padding: 16px;
+    z-index: 100;
+    border-color: var(--neon-secondary);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 10px var(--neon-secondary-glow);
+    animation: timer-slide-in 0.35s var(--transition-curve);
+    background: rgba(10, 12, 20, 0.85);
+}
+
+.mission-timer-hud.hidden {
+    display: none !important;
+}
+
+.mission-timer-hud.alarm-state {
+    border-color: var(--neon-accent) !important;
+    box-shadow: 0 0 20px var(--neon-accent-glow) !important;
+    animation: alarm-flicker 0.5s infinite alternate !important;
+}
+
+.timer-brand {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    text-align: center;
+    letter-spacing: 0.15em;
+}
+
+.mission-timer-hud.alarm-state .timer-brand {
+    color: var(--neon-accent) !important;
+}
+
+.timer-display {
+    font-size: 2.2rem;
+    font-weight: bold;
+    text-align: center;
+    color: var(--neon-secondary);
+    text-shadow: 0 0 10px var(--neon-secondary-glow);
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+}
+
+.mission-timer-hud.alarm-state .timer-display {
+    color: var(--neon-accent) !important;
+    text-shadow: 0 0 15px var(--neon-accent-glow) !important;
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.timer-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--panel-border);
+    color: var(--text-main);
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.timer-btn:hover {
+    border-color: var(--neon-secondary);
+    color: var(--neon-secondary);
+    box-shadow: 0 0 8px var(--neon-secondary-glow);
+}
+
+.mission-timer-hud.alarm-state .timer-btn:hover {
+    border-color: var(--neon-accent) ;
+    color: var(--neon-accent);
+    box-shadow: 0 0 8px var(--neon-accent-glow);
+}
+
+.timer-btn i {
+    width: 14px;
+    height: 14px;
+}
+
+@keyframes timer-slide-in {
+    0% { transform: translateY(-20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes alarm-flicker {
+    0% { border-color: rgba(255, 0, 127, 0.4); }
+    100% { border-color: rgba(255, 0, 127, 1); }
+}
+

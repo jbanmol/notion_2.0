@@ -21,9 +21,16 @@
     <div class="cyber-grid-overlay"></div>
     <div class="cyber-scanline"></div>
 
+    <!-- Distraction-free lo-fi ambient backgrounds -->
+    <div class="focus-ambient-bg hidden" id="focus-ambient-bg">
+        <div class="neon-nebula"></div>
+        <div class="neon-nebula-pulse"></div>
+        <div class="digital-snow"></div>
+    </div>
+
     <div class="app-container">
         <!-- LEFT SIDEBAR -->
-        <aside class="sidebar-panel glass-panel">
+        <aside class="sidebar-panel glass-panel" id="sidebar-panel">
             <div class="sidebar-header">
                 <div class="sidebar-brand">
                     <i data-lucide="cpu" class="neon-glow-icon pink"></i>
@@ -65,9 +72,9 @@
         </aside>
 
         <!-- MAIN EDITOR VIEWPORT -->
-        <main class="main-viewport glass-panel">
+        <main class="main-viewport glass-panel" id="main-viewport">
             <!-- Header Utilities -->
-            <header class="viewport-header">
+            <header class="viewport-header" id="viewport-header">
                 <div class="breadcrumbs font-mono">
                     <i data-lucide="terminal" class="cyan"></i>
                     <span class="root-node">ROOT</span>
@@ -76,6 +83,12 @@
                 </div>
 
                 <div class="header-utilities">
+                    <!-- Focus Mode Toggle Button -->
+                    <button id="focus-toggle-btn" class="utility-icon-btn font-mono" title="Activate Focus Mode (Cmd+Shift+F)">
+                        <i data-lucide="eye"></i>
+                        <span class="btn-hotkey">FOCUS_DRIVE</span>
+                    </button>
+
                     <!-- Command Palette Button -->
                     <button id="search-btn" class="utility-icon-btn font-mono" title="Search nodes (Cmd+K)">
                         <i data-lucide="search"></i>
@@ -102,8 +115,25 @@
                 </div>
             </header>
 
+            <!-- Holographic Mission Intrusion Timer HUD -->
+            <div id="mission-timer-hud" class="mission-timer-hud glass-panel hidden">
+                <div class="timer-brand font-mono">INTRUSION_TIME_REMAINING</div>
+                <div class="timer-display font-mono" id="timer-display">25:00</div>
+                <div class="timer-controls">
+                    <button id="timer-start-btn" class="timer-btn" title="Start Upload Link">
+                        <i data-lucide="play"></i>
+                    </button>
+                    <button id="timer-pause-btn" class="timer-btn" title="Pause Telemetry">
+                        <i data-lucide="pause"></i>
+                    </button>
+                    <button id="timer-reset-btn" class="timer-btn" title="Re-sync System">
+                        <i data-lucide="refresh-cw"></i>
+                    </button>
+                </div>
+            </div>
+
             <!-- Editor Container -->
-            <section class="editor-container">
+            <section class="editor-container" id="editor-viewport-container">
                 <div class="editor-scroller">
                     <!-- Title Input Field -->
                     <input type="text" id="document-title" class="editor-title-input" placeholder="UNNAMED_NODE..." autocomplete="off">
