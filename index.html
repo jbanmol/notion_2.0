@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEONOTION // Cybernetic Workspace</title>
+    
+    <!-- Google Fonts: Futuristic Outfit, Code Share Tech Mono, Clean Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons for high-fidelity tech design -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Global CSS stylesheet -->
+    <link rel="stylesheet" href="src/style.css">
+</head>
+<body class="theme-obsidian">
+    <!-- Holographic grid scanline background layers -->
+    <div class="cyber-grid-overlay"></div>
+    <div class="cyber-scanline"></div>
+
+    <div class="app-container">
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar-panel glass-panel">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <i data-lucide="cpu" class="neon-glow-icon pink"></i>
+                    <span class="brand-text">NEO<span class="highlight">NOTION</span></span>
+                </div>
+                <div class="system-status">
+                    <span class="status-dot pulsing"></span>
+                    <span class="status-text font-mono">SYS_OK v2.0</span>
+                </div>
+            </div>
+
+            <!-- Page Management -->
+            <div class="sidebar-actions">
+                <button id="add-page-btn" class="cyber-btn glass-btn">
+                    <i data-lucide="plus-circle"></i>
+                    <span>NEW_NODE.EXE</span>
+                </button>
+            </div>
+
+            <!-- Navigation Tree -->
+            <nav class="sidebar-nav">
+                <div class="nav-section-title font-mono">WORKSPACE_NODES</div>
+                <ul id="sidebar-document-list" class="document-list">
+                    <!-- Dynamic Document Tree injected here -->
+                </ul>
+            </nav>
+
+            <!-- Sidebar Footer Diagnostics -->
+            <div class="sidebar-footer font-mono">
+                <div class="diagnostic-row">
+                    <span>MEMORY_ALLOC:</span>
+                    <span class="highlight cyan">84.2%</span>
+                </div>
+                <div class="diagnostic-row">
+                    <span>NET_ENCRYPT:</span>
+                    <span class="highlight green">STABLE</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN EDITOR VIEWPORT -->
+        <main class="main-viewport glass-panel">
+            <!-- Header Utilities -->
+            <header class="viewport-header">
+                <div class="breadcrumbs font-mono">
+                    <i data-lucide="terminal" class="cyan"></i>
+                    <span class="root-node">ROOT</span>
+                    <span class="separator">//</span>
+                    <span id="active-document-breadcrumb" class="active-node">INITIALIZING...</span>
+                </div>
+
+                <div class="header-utilities">
+                    <!-- Command Palette Button -->
+                    <button id="search-btn" class="utility-icon-btn font-mono" title="Search nodes (Cmd+K)">
+                        <i data-lucide="search"></i>
+                        <span class="btn-hotkey">⌘K</span>
+                    </button>
+
+                    <!-- Theme Toggle Hub -->
+                    <div class="theme-selector">
+                        <button id="theme-toggle-btn" class="utility-icon-btn" title="Cycle Neon Themes">
+                            <i data-lucide="palette" class="pink"></i>
+                        </button>
+                        <div class="theme-dropdown glass-panel hidden" id="theme-dropdown">
+                            <button data-theme="theme-obsidian" class="theme-opt active">
+                                <span class="dot obsidian"></span> Obsidian Core
+                            </button>
+                            <button data-theme="theme-vaporwave" class="theme-opt">
+                                <span class="dot vaporwave"></span> Glitch Pink
+                            </button>
+                            <button data-theme="theme-amber" class="theme-opt">
+                                <span class="dot amber"></span> Tech Amber
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Editor Container -->
+            <section class="editor-container">
+                <div class="editor-scroller">
+                    <!-- Title Input Field -->
+                    <input type="text" id="document-title" class="editor-title-input" placeholder="UNNAMED_NODE..." autocomplete="off">
+                    
+                    <!-- Dynamic Blocks Workspace -->
+                    <div id="editor-workspace" class="editor-blocks-container">
+                        <!-- Blocks Injected dynamically -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- HOLOGRAPHIC COMMAND PALETTE -->
+    <div id="command-palette" class="palette-overlay hidden">
+        <div class="palette-container glass-panel animate-slide-up">
+            <div class="palette-search-wrapper">
+                <i data-lucide="search" class="palette-search-icon"></i>
+                <input type="text" id="palette-search-input" placeholder="Type a command or search nodes..." autocomplete="off">
+                <span class="palette-escape font-mono">ESC</span>
+            </div>
+            <div class="palette-results" id="palette-results">
+                <!-- Search results injected here -->
+            </div>
+            <div class="palette-footer font-mono">
+                <span>↑↓ Navigate</span>
+                <span>↵ Select</span>
+                <span>/ Switch node</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script entry point -->
+    <script type="module" src="src/app.js"></script>
+</body>
+</html>
