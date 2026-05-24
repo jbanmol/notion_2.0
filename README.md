@@ -1,11 +1,12 @@
-# 🌐 NEONOTION // CYBER_GRID_WORKSPACE
+# 🌐 NΞONOTION // CYBER_GRID_WORKSPACE
 
-> **[PROTOCOL STATUS: ONLINE]**
-> A decentralized, hyper-visual, cyberpunk-themed productivity workspace. Built for netrunners, developers, and digital architects of the near future.
+> [!NOTE]
+> **PROTOCOL STATUS: ACTIVE // DECK_ONLINE**
+> Welcome to a decentralized, hyper-visual, cyberpunk-themed productivity workspace. Built for netrunners, developers, and peak-performance digital architects of the near future.
 
 ---
 
-```
+```text
   _  _             _  _         _    _             
  | \| | ___  ___  | \| | ___  _| |_ (_) ___  _ _  
  | .` |/ -_)/ _ \ | .` |/ _ \(_   _)| |/ _ \| ' \ 
@@ -13,97 +14,112 @@
                                                    
 ```
 
-`NeoNotion` is a next-generation document editor and wiki workspace designed with a state-of-the-art cyberpunk, dark-synth, and tech aesthetic. It combines the structured productivity of modern workspace tools with high-fidelity visual design, responsive micro-animations, and vibrant neon accents.
+`NΞONOTION` is a next-generation document editor and wiki workspace designed with a state-of-the-art cyberpunk, dark-synth, and tech aesthetic. By fusing rich productivity utilities with immersive sensory feedback, responsive micro-animations, and custom audio synthesizers, it transforms static document management into an active, tactile netrunning deck.
 
 ---
 
-## ⚡ CORE UTILITIES (FEATURES)
+## ⚡ CYBERNETIC COGNITIVE UTILITIES (FEATURES)
 
-- **💾 NEURAL TEXT MATRIX (DOCUMENT EDITOR)**
-  - Rich-text workspace with instant slash-command menus (`/cmd`).
-  - Native code snippet syntax highlighting with cybernetic neon themes.
-  - Markdown compiler with immersive inline previews.
+### 1. 📡 Neural Grid Graph Map (`NEURAL_GRID_GRAPH`)
+- **Orbital Mapping**: Launches a fullscreen glassmorphic coordinate viewport displaying all pages as orbital bubbles revolving around a central `SYS_GATEWAY.EXE` processor router.
+- **Pulsing SVG Lasers**: Generates glowing neon connector paths linking document orbital coordinates to the core gateway hub.
+- **Warp Navigation**: Clicking a sector node triggers mechanical chimes, updates workspace directories, and smoothly exits the map overlay.
 
-- **🗂️ CYBER-GRAPH DATABASES**
-  - High-performance, reactive document tables and Kanban boards.
-  - Interactive grid and holographic-style matrix views.
-  - Dynamic filtering, sorting, and tag categorization.
+```mermaid
+graph TD
+    Gateway["SYS_GATEWAY.EXE (Core Node)"]
+    Gateway --- Node1["📄 SECTOR_NOD_1 (Page 1)"]
+    Gateway --- Node2["📄 SECTOR_NOD_2 (Page 2)"]
+    Gateway --- Node3["📄 SECTOR_NOD_3 (Page 3)"]
+    style Gateway fill:#0b0d19,stroke:#00f0ff,stroke-width:2px,filter:drop-shadow(0 0 10px #00f0ff)
+    style Node1 fill:#08090c,stroke:#ff007f,stroke-width:1px,filter:drop-shadow(0 0 5px #ff007f)
+    style Node2 fill:#08090c,stroke:#ff007f,stroke-width:1px,filter:drop-shadow(0 0 5px #ff007f)
+    style Node3 fill:#08090c,stroke:#ff007f,stroke-width:1px,filter:drop-shadow(0 0 5px #ff007f)
+```
 
-- **🎨 IMMERSIVE HUD THEMES (VISUALS)**
-  - **Obsidian Core (Default)**: Deep midnight canvas with electric violet and cyan glows.
-  - **Neon Pink Glitch**: High-contrast vaporwave theme with subtle CRT scanline effects.
-  - **Cyberpunk Gold**: Retro-futuristic amber and gold warnings.
-  - Glassmorphic navigation headers, smooth glow drop-shadows, and micro-interactions.
+### 2. 🌊 WPM Flow State Telemetry (`FLOW_STATE_TELEMETRY`)
+- **Keystroke Velocity**: Measures real-time typing speed (60s sliding window) using custom keypress timestamp queues.
+- **Dynamic Particle Physics**: As WPM climbs above 40, the canvas snow/nebula layers accelerate drift velocity, increase density, and slant particle descent angles to visually reflect active cognitive throughput.
 
-- **📡 DECENTRALIZED SYNC**
-  - Offline-first caching powered by IndexedDB.
-  - Sub-millisecond latency local storage and real-time state synchronization.
+### 3. 🖥️ Collapsible bottom HUD Diagnostic Terminal (`CONSOLE_DIAGNOSTICS.LOG`)
+- **Telemetry Console**: A bottom-docked trace console panel detailing exfiltrated save records, selection offsets, and device actions in real-time.
+- **Command Toggling**: Toggles panel sizes dynamically between collapsed standby and expanded diagnostics view via clicking the footer console tab or the global shortcut `Cmd+/`.
+- **Live Event Echoes**:
+  - `AUTO_SAVE`: Captures editor updates, logging exfiltrated serialized database save payloads in bytes.
+  - `CARET_MUTATION`: Echoes cursor movements in the editor, logging `SECTOR_NOD_x` and exact caret selection offsets.
+  - `BLOCK_LIFECYCLE`: Traces block insertions (`BLOCK_INSERTED`) and block conversions (`BLOCK_MORPHED`).
+  - `AUDIO_PROFILE`: Prints active keyboard click synthesizer profile changes.
+
+### 4. 🔏 Matrix Decryption Search Solver (`DECRYPT_MATRIX_SEARCH`)
+- **Cypher Scramble**: Applies Japanese Katakana characters (`ア`, `カ`, `サ`, `タ`, etc.), binary bits, and system glyphs (`%`, `@`, `$`, `[]`) to command palette results.
+- **Visual Decoupling**: Newly updated fuzzy search titles cycle random characters for `200ms` before sequentially resolving from left to right to reveal clear plain text.
+
+### 5. 🔊 Web Audio click Synthesizers (`TACTILE_SWITCH_SELECTOR`)
+- Native Web Audio engine (zero external file dependency) synthesizing four unique click sounds:
+  - **`🔩 MECH`**: Tactile physical keyboard switch clicks (White noise + triangle frequency sweep).
+  - **`🌸 VAPOR`**: Resonant vaporwave digital chime (high frequency sine wave decay).
+  - **`🌧 BASS`**: Deep dystopian bass thud (low-pass triangle wave impulse).
+  - **`⚡ GLITCH`**: High-crunch plasma static crackle (stuttered high-pass white noise).
 
 ---
 
-## 🛠️ FUTURISTIC TECH STACK
+## 🎨 TACTILE DECK HOTKEYS
 
-- **Frontend Core**: Vite + React / TypeScript (SPA architecture)
-- **Styling Matrix**: Custom Vanilla CSS (Design Tokens, Custom CSS Variables, HSL-tailored colors, Glassmorphism, CSS Grid & Flexbox)
-- **State System**: React Context + Custom hooks (Lightweight & high performance)
-- **Local Data Sync**: IndexedDB / LocalStorage (Offline persistence)
+| Action Command | Hotkey Shortcut | Operational Description |
+| :--- | :--- | :--- |
+| **Cmd + K** / **Ctrl + K** | `⌘K` | Launch Holographic Command Palette |
+| **Cmd + Shift + F** | `⌘⇧F` | Engage Focus Mode (Collapses sidebar & activates ambient drift) |
+| **Cmd + /** / **Ctrl + /** | `⌘/` | Toggle Collapsible HUD Diagnostic Terminal Size |
+| **Escape** | `ESC` | Dismiss Command Palette / Slash Command Dropdown / Grid Map |
+| **Slash** | `/` | Spawns block-morphing command menu at active editor text block |
 
 ---
 
-## 📂 DIRECTORY PROTOCOLS
+## 🛠️ FUTURISTIC TECH MATRIX
 
+- **Zero-Dependency Architecture**: Built strictly with client-side vanilla ES6 modules — no complex build matrices, zero bloated frameworks, and ultra-high-speed startup.
+- **Frontend Core**: Vanilla HTML5 + ES6 JavaScript.
+- **Styling Engine**: Custom Vanilla CSS3 (Design Tokens, custom HSL spaces, glassmorphism, responsive grids, and pulsing scanline animation loops).
+- **Data Layer**: High-speed offline-first synchronization using native LocalStorage databases.
+
+---
+
+## 🚀 BOOTUP GRID SEQUENCES (LOCAL LAUNCH)
+
+> [!IMPORTANT]
+> NeoNotion has zero external dependencies! You do not need to run heavy `npm install` packages to initiate the deck.
+
+### 1. Launch a Local Web Server
+You can launch the grid using any lightweight local static web server. 
+
+**Using Python (Pre-installed on macOS/Linux)**:
+```bash
+python3 -m http.server 8080
+```
+
+**Using Node / NPX**:
+```bash
+npx http-server -p 8080
+```
+
+### 2. Engage Deck
+Once the server is booted, open the dashboard in your secure browser link:
 ```text
-├── public/                  # Holographic assets & static media
-└── src/
-    ├── assets/              # Core SVG icons & imagery
-    ├── components/          # Reusable cybernetic UI components
-    │   ├── Editor/          # Markdown/Neural text editor
-    │   ├── Database/        # Kanban, Grid, & Table views
-    │   └── Sidebar/         # Terminal-like file system navigation
-    ├── context/             # Document state and theme providers
-    ├── styles/              # Global variables, tokens, and animations
-    │   ├── theme.css        # Neon palettes & glassmorphic tokens
-    │   └── main.css         # Reset & global layouts
-    ├── App.jsx              # Core workspace routing
-    └── main.jsx             # React entrypoint
+http://localhost:8080
 ```
 
 ---
 
-## 🚀 BOOTUP SEQUENCES (INSTALLATION)
-
-### 1. Initialize the Workspace
-Clone or navigate to the project directory and install the necessary telemetry packages:
-```bash
-npm install
-```
-
-### 2. Boot the Development Grid
-Launch the local dev environment on a secure localhost port:
-```bash
-npm run dev
-```
-
-### 3. Deploy Production Bundle
-Compile the optimized, light-speed static build ready for cloud deployment:
-```bash
-npm run build
-```
-
----
-
-## 🎨 CYBER DESIGN SYSTEM TOKENS
-
-To keep the theme cohesive, the application relies on strict, premium color spaces:
+## 🎨 CYBER DESIGN TOKENS
 
 | Color Token | Variable Name | HEX Code | HSL Space | Usage |
 | :--- | :--- | :--- | :--- | :--- |
 | **Obsidian Dark** | `--bg-core` | `#08090C` | `hsl(225, 30%, 4%)` | Core app canvas & background |
 | **Grid Line** | `--bg-grid` | `#11141E` | `hsl(225, 25%, 9%)` | Matrix borders & terminal cards |
-| **Electric Cyan** | `--neon-cyan` | `#00F0FF` | `hsl(184, 100%, 50%)` | Success highlights, nodes, active links |
-| **Hot Pink** | `--neon-pink` | `#FF007F` | `hsl(330, 100%, 50%)` | Warnings, buttons, branding accents |
-| **Cyber Violet** | `--neon-violet` | `#9D00FF` | `hsl(277, 100%, 50%)` | Holographic gradients & glow states |
+| **Electric Cyan** | `--neon-cyan` | `#00F0FF` | `hsl(184, 100%, 50%)` | Success highlights, active lines, warp connections |
+| **Hot Pink** | `--neon-pink` | `#FF007F` | `hsl(330, 100%, 50%)` | Branding accents, sidebars, alerts |
+| **Cyber Violet** | `--neon-violet` | `#9D00FF` | `hsl(277, 100%, 50%)` | Holographic radial gradients & active glows |
 
 ---
 
-*System initialized. Ready for cybernetic integration. // Made for modern digital architects.*
+*System archived and stable. Ready for sensory exploration. // Made for modern digital architects.*
