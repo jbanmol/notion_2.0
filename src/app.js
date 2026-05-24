@@ -5,11 +5,13 @@
 import { state } from './state.js';
 import { SidebarComponent } from './sidebar.js';
 import { EditorComponent } from './editor.js';
+import { CommandPaletteComponent } from './palette.js';
 
 class AppController {
     constructor() {
         this.sidebar = new SidebarComponent();
         this.editor = new EditorComponent();
+        this.palette = new CommandPaletteComponent((doc) => this.editor.loadDocument(doc));
 
         this.themeBtnEl = document.getElementById('theme-toggle-btn');
         this.themeDropdownEl = document.getElementById('theme-dropdown');
