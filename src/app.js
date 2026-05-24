@@ -6,12 +6,14 @@ import { state } from './state.js';
 import { SidebarComponent } from './sidebar.js';
 import { EditorComponent } from './editor.js';
 import { CommandPaletteComponent } from './palette.js';
+import { FocusController } from './focus.js';
 
 class AppController {
     constructor() {
         this.sidebar = new SidebarComponent();
         this.editor = new EditorComponent();
         this.palette = new CommandPaletteComponent((doc) => this.editor.loadDocument(doc));
+        this.focusMode = new FocusController();
 
         this.themeBtnEl = document.getElementById('theme-toggle-btn');
         this.themeDropdownEl = document.getElementById('theme-dropdown');
@@ -37,6 +39,8 @@ class AppController {
         this.sidebar.render();
 
         console.log("⚡ NEONOTION CORES ENGAGED. FUTURISTIC HUD DEPLOYED.");
+        console.log("🎯 FOCUS MODE CONTROLLER ONLINE. Cmd+Shift+F to engage.");
+
     }
 
     loadActiveDocument() {

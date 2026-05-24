@@ -82,6 +82,21 @@
                         <span class="btn-hotkey">⌘K</span>
                     </button>
 
+                    <!-- Focus Mode Toggle -->
+                    <button id="focus-toggle-btn" class="utility-icon-btn focus-btn font-mono" title="Engage Focus Mode (Cmd+Shift+F)">
+                        <i data-lucide="target"></i>
+                        <span class="btn-label">FOCUS</span>
+                        <span class="btn-hotkey">⌘⇧F</span>
+                    </button>
+
+                    <!-- Audio Profile Selector -->
+                    <select id="audio-profile-select" class="audio-select font-mono" title="Click Sound Profile">
+                        <option value="mech">🔩 MECH</option>
+                        <option value="vaporwave">🌸 VAPOR</option>
+                        <option value="dystopian">🌧 BASS</option>
+                        <option value="glitch">⚡ GLITCH</option>
+                    </select>
+
                     <!-- Theme Toggle Hub -->
                     <div class="theme-selector">
                         <button id="theme-toggle-btn" class="utility-icon-btn" title="Cycle Neon Themes">
@@ -133,6 +148,55 @@
                 <span>↵ Select</span>
                 <span>/ Switch node</span>
             </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         FOCUS MODE FLOATING MISSION TIMER HUD
+         ═══════════════════════════════════════════════════════════ -->
+    <div id="mission-timer-hud" class="mission-hud glass-panel hidden">
+        <div class="hud-header font-mono">
+            <span class="hud-label"><i data-lucide="shield-alert"></i> INTRUSION_TIMER</span>
+            <button id="hud-close-btn" class="hud-close-btn" title="Close HUD">✕</button>
+        </div>
+        <div class="hud-display">
+            <div id="timer-display" class="timer-digits font-mono">25:00</div>
+            <div class="timer-status font-mono" id="timer-status-text">STANDBY</div>
+        </div>
+        <div class="hud-controls">
+            <button id="timer-start-btn" class="hud-btn hud-btn-start font-mono">
+                <i data-lucide="play"></i> START
+            </button>
+            <button id="timer-pause-btn" class="hud-btn hud-btn-pause font-mono" disabled>
+                <i data-lucide="pause"></i> PAUSE
+            </button>
+            <button id="timer-reset-btn" class="hud-btn hud-btn-reset font-mono">
+                <i data-lucide="rotate-ccw"></i> RESET
+            </button>
+        </div>
+        <div class="hud-progress-bar">
+            <div id="hud-progress-fill" class="hud-progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         FOCUS AMBIENT BACKGROUND — Nebula + Digital Snow
+         ═══════════════════════════════════════════════════════════ -->
+    <div id="focus-ambient-bg" class="focus-ambient-bg hidden">
+        <div class="nebula-layer nebula-1"></div>
+        <div class="nebula-layer nebula-2"></div>
+        <div class="nebula-layer nebula-3"></div>
+        <div class="cyber-grid-scan"></div>
+    </div>
+    <canvas id="focus-snow-canvas" class="focus-snow-canvas hidden"></canvas>
+
+    <!-- Timer Completion Modal -->
+    <div id="timer-complete-modal" class="timer-modal hidden">
+        <div class="timer-modal-card glass-panel">
+            <div class="modal-icon">🎯</div>
+            <h2 class="modal-title font-mono">MISSION_COMPLETE</h2>
+            <p class="modal-desc">Intrusion window elapsed. Neural bandwidth restored.</p>
+            <button id="modal-dismiss-btn" class="hud-btn hud-btn-start font-mono">ACKNOWLEDGED ✓</button>
         </div>
     </div>
 

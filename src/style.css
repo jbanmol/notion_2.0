@@ -915,3 +915,457 @@ body {
     0% { transform: translateY(20px); opacity: 0; }
     100% { transform: translateY(0); opacity: 1; }
 }
+
+/* ==========================================================================
+   FOCUS MODE — AMBIENT BACKDROP & NEBULA SYSTEM
+   ========================================================================== */
+
+/* Ambient nebula background */
+.focus-ambient-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+}
+
+.focus-ambient-bg.hidden {
+    display: none;
+}
+
+.focus-ambient-bg.visible {
+    opacity: 1;
+}
+
+/* Nebula radial layers */
+.nebula-layer {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    mix-blend-mode: screen;
+    will-change: transform, opacity;
+}
+
+.nebula-1 {
+    width: 60vw;
+    height: 60vw;
+    top: -20%;
+    left: -10%;
+    background: radial-gradient(circle, hsla(280, 100%, 40%, 0.35) 0%, transparent 70%);
+    animation: nebula-drift-1 18s ease-in-out infinite alternate;
+}
+
+.nebula-2 {
+    width: 50vw;
+    height: 50vw;
+    bottom: -15%;
+    right: -10%;
+    background: radial-gradient(circle, hsla(190, 100%, 40%, 0.3) 0%, transparent 70%);
+    animation: nebula-drift-2 22s ease-in-out infinite alternate;
+}
+
+.nebula-3 {
+    width: 40vw;
+    height: 40vw;
+    top: 40%;
+    left: 35%;
+    background: radial-gradient(circle, hsla(330, 100%, 35%, 0.2) 0%, transparent 70%);
+    animation: nebula-drift-3 14s ease-in-out infinite alternate;
+}
+
+/* Holographic grid scan overlay */
+.cyber-grid-scan {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(to right, rgba(0, 240, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 240, 255, 0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: grid-scroll 30s linear infinite;
+}
+
+@keyframes nebula-drift-1 {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(6vw, 4vh) scale(1.12); }
+    100% { transform: translate(-4vw, 8vh) scale(0.94); }
+}
+
+@keyframes nebula-drift-2 {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(-8vw, -5vh) scale(1.1); }
+    100% { transform: translate(5vw, -10vh) scale(0.9); }
+}
+
+@keyframes nebula-drift-3 {
+    0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
+    50%  { transform: translate(4vw, -6vh) scale(1.15) rotate(15deg); }
+    100% { transform: translate(-6vw, 4vh) scale(0.88) rotate(-10deg); }
+}
+
+@keyframes grid-scroll {
+    0%   { background-position: 0 0; }
+    100% { background-position: 60px 60px; }
+}
+
+/* Digital snow canvas */
+.focus-snow-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.focus-snow-canvas.hidden {
+    display: none;
+}
+
+.focus-snow-canvas.visible {
+    opacity: 1;
+}
+
+/* ==========================================================================
+   FOCUS MODE — BODY CLASS TRANSITIONS (.focus-mode-active)
+   ========================================================================== */
+
+/* Sidebar collapse */
+body.focus-mode-active .sidebar-panel {
+    width: 0;
+    min-width: 0;
+    padding: 0;
+    overflow: hidden;
+    border-width: 0;
+    opacity: 0;
+    transform: translateX(-320px);
+    transition:
+        width 0.5s var(--transition-curve),
+        transform 0.5s var(--transition-curve),
+        opacity 0.4s ease,
+        padding 0.5s ease,
+        border-width 0.3s ease;
+}
+
+/* Sidebar normal state */
+.sidebar-panel {
+    transition:
+        width 0.5s var(--transition-curve),
+        transform 0.5s var(--transition-curve),
+        opacity 0.4s ease,
+        padding 0.5s ease;
+}
+
+/* Breadcrumb dimming in focus mode */
+body.focus-mode-active .breadcrumbs {
+    opacity: 0.25;
+    transition: opacity 0.5s ease;
+}
+
+/* Editor canvas expands and centers */
+body.focus-mode-active .editor-scroller {
+    padding: 64px 18%;
+    transition: padding 0.5s var(--transition-curve);
+}
+
+/* Focus button active state */
+body.focus-mode-active #focus-toggle-btn {
+    border-color: var(--neon-accent);
+    color: var(--neon-accent);
+    box-shadow: 0 0 14px var(--neon-accent-glow);
+    background: rgba(255, 0, 127, 0.08);
+}
+
+/* ==========================================================================
+   FOCUS MODE — HEADER CONTROLS
+   ========================================================================== */
+
+/* Focus toggle button  */
+.focus-btn {
+    border-color: var(--neon-primary) !important;
+    color: var(--neon-primary) !important;
+    position: relative;
+}
+
+.focus-btn:hover {
+    background: rgba(157, 0, 255, 0.1) !important;
+    box-shadow: 0 0 14px var(--neon-primary-glow) !important;
+    border-color: var(--neon-primary) !important;
+    color: var(--neon-primary) !important;
+}
+
+.focus-btn .btn-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+}
+
+/* Audio profile select */
+.audio-select {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--panel-border);
+    color: var(--text-main);
+    height: 38px;
+    padding: 0 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    text-align: center;
+}
+
+.audio-select:hover, .audio-select:focus {
+    border-color: var(--neon-secondary);
+    color: var(--neon-secondary);
+    box-shadow: 0 0 8px var(--neon-secondary-glow);
+    outline: none;
+}
+
+.audio-select option {
+    background: var(--panel-bg-solid);
+    color: var(--text-main);
+}
+
+/* ==========================================================================
+   FOCUS MODE — MISSION TIMER HUD
+   ========================================================================== */
+
+.mission-hud {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 240px;
+    border-radius: 12px;
+    z-index: 900;
+    padding: 20px;
+    border-color: var(--neon-secondary) !important;
+    box-shadow: 0 0 30px var(--neon-secondary-glow), 0 12px 40px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: opacity 0.4s ease, transform 0.4s var(--transition-curve);
+}
+
+.mission-hud.hidden {
+    display: none;
+}
+
+.hud-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.65rem;
+    color: var(--neon-secondary);
+    letter-spacing: 0.15em;
+}
+
+.hud-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hud-label i {
+    width: 14px;
+    height: 14px;
+}
+
+.hud-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 1;
+    transition: color 0.2s;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.hud-close-btn:hover {
+    color: var(--neon-accent);
+}
+
+/* Timer digit display */
+.hud-display {
+    text-align: center;
+}
+
+.timer-digits {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--neon-secondary);
+    text-shadow: 0 0 20px var(--neon-secondary-glow), 0 0 40px var(--neon-secondary-glow);
+    line-height: 1;
+    letter-spacing: 0.05em;
+    transition: color 0.5s ease, text-shadow 0.5s ease;
+}
+
+/* Alarm state */
+.timer-digits.alarm {
+    color: var(--neon-accent);
+    text-shadow: 0 0 20px var(--neon-accent-glow), 0 0 40px var(--neon-accent-glow);
+    animation: alarm-flicker 0.6s ease-in-out infinite;
+}
+
+@keyframes alarm-flicker {
+    0%, 100% { opacity: 1; }
+    45%       { opacity: 0.65; }
+    50%       { opacity: 0.95; }
+    55%       { opacity: 0.4; }
+}
+
+.timer-status {
+    margin-top: 6px;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+}
+
+/* HUD control buttons */
+.hud-controls {
+    display: flex;
+    gap: 6px;
+}
+
+.hud-btn {
+    flex: 1;
+    padding: 8px 4px;
+    border-radius: 6px;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border: 1px solid var(--panel-border);
+    background: transparent;
+    color: var(--text-main);
+    transition: all 0.2s ease;
+}
+
+.hud-btn i {
+    width: 12px;
+    height: 12px;
+}
+
+.hud-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.hud-btn-start {
+    border-color: var(--neon-green);
+    color: var(--neon-green);
+}
+.hud-btn-start:hover:not(:disabled) {
+    background: var(--neon-green);
+    color: var(--bg-core);
+    box-shadow: 0 0 10px var(--neon-green-glow);
+}
+
+.hud-btn-pause {
+    border-color: var(--neon-secondary);
+    color: var(--neon-secondary);
+}
+.hud-btn-pause:hover:not(:disabled) {
+    background: var(--neon-secondary);
+    color: var(--bg-core);
+    box-shadow: 0 0 10px var(--neon-secondary-glow);
+}
+
+.hud-btn-reset {
+    border-color: var(--neon-accent);
+    color: var(--neon-accent);
+}
+.hud-btn-reset:hover:not(:disabled) {
+    background: var(--neon-accent);
+    color: var(--bg-core);
+    box-shadow: 0 0 10px var(--neon-accent-glow);
+}
+
+/* Progress bar */
+.hud-progress-bar {
+    height: 3px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.hud-progress-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, var(--neon-secondary), var(--neon-primary));
+    border-radius: 2px;
+    box-shadow: 0 0 6px var(--neon-secondary-glow);
+    transition: width 1s linear, background 0.5s ease;
+}
+
+.hud-progress-fill.alarm {
+    background: linear-gradient(90deg, var(--neon-accent), #ff6600);
+    box-shadow: 0 0 6px var(--neon-accent-glow);
+}
+
+/* HUD alarm glow on card border */
+.mission-hud.alarm {
+    border-color: var(--neon-accent) !important;
+    box-shadow: 0 0 30px var(--neon-accent-glow), 0 12px 40px rgba(0,0,0,0.6) !important;
+}
+
+/* ==========================================================================
+   FOCUS MODE — TIMER COMPLETION MODAL
+   ========================================================================== */
+
+.timer-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fade-in 0.4s ease;
+}
+
+.timer-modal.hidden {
+    display: none;
+}
+
+.timer-modal-card {
+    text-align: center;
+    padding: 48px 40px;
+    border-radius: 16px;
+    border-color: var(--neon-primary) !important;
+    box-shadow: 0 0 60px var(--neon-primary-glow), 0 20px 60px rgba(0, 0, 0, 0.8);
+    max-width: 400px;
+    animation: slide-up 0.5s var(--transition-curve);
+}
+
+.modal-icon {
+    font-size: 3.5rem;
+    margin-bottom: 16px;
+}
+
+.modal-title {
+    font-size: 1.4rem;
+    color: var(--neon-primary);
+    text-shadow: 0 0 20px var(--neon-primary-glow);
+    letter-spacing: 0.2em;
+    margin-bottom: 12px;
+}
+
+.modal-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    line-height: 1.6;
+}
+
+@keyframes fade-in {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
+}
+
