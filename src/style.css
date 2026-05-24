@@ -205,16 +205,48 @@ body {
 .sidebar-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+}
+
+.logo-icon-container {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255, 0, 127, 0.05);
+    border: 1px solid rgba(255, 0, 127, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(255, 0, 127, 0.1);
+    flex-shrink: 0;
+}
+
+.brand-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.brand-text {
     font-family: var(--font-header);
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--text-main);
     letter-spacing: 0.05em;
+    line-height: 1.1;
 }
 
-.sidebar-brand .highlight {
+.brand-text .highlight {
     color: var(--neon-secondary);
+}
+
+.brand-subtitle {
+    font-size: 0.55rem;
+    color: var(--neon-secondary);
+    opacity: 0.85;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-shadow: 0 0 4px var(--neon-secondary-glow);
 }
 
 /* Neon glow animations */
