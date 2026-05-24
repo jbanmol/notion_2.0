@@ -136,8 +136,12 @@ class StateManager {
     }
 
     saveToStorage() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
+        const payloadStr = JSON.stringify(this.data);
+        localStorage.setItem(STORAGE_KEY, payloadStr);
         this.notifyListeners();
+        if (window.app && window.app.log) {
+            window.app.log(`AUTO_SAVE // SUCCESS // EXFILTRATED ${payloadStr.length} BYTES`);
+        }
     }
 
     notifyListeners() {

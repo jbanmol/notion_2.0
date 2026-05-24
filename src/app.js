@@ -8,6 +8,7 @@ import { EditorComponent } from './editor.js';
 import { CommandPaletteComponent } from './palette.js';
 import { FocusController, MissionHUD } from './focus.js';
 import { CyberModalService } from './modals.js';
+import { GraphController } from './graph.js';
 
 class AppController {
     constructor() {
@@ -28,6 +29,7 @@ class AppController {
         this.themeDropdownEl = document.getElementById('theme-dropdown');
         this.timerPillEl     = document.getElementById('timer-pill');
         this.audioMuteBtnEl  = document.getElementById('audio-mute-btn');
+        this.graph           = new GraphController();
 
         this.init();
     }
@@ -55,6 +57,7 @@ class AppController {
         this._initAudioMuteButton();
         this._initGlobalKeystrokes();
         this._initUIInteractions();
+        this._initDiagnosticTerminal();
 
         console.log("⚡ NEONOTION CORES ENGAGED. FUTURISTIC HUD DEPLOYED.");
         console.log("🎯 FOCUS MODE CONTROLLER ONLINE. Cmd+Shift+F to engage.");
@@ -219,6 +222,78 @@ class AppController {
                 this.focusMode.audio.playSoftClick();
             }
         });
+    }
+
+    /* -----------------------------------------------------------------------
+       HUD COLLAPSIBLE DIAGNOSTIC TERMINAL (Task 3.3)
+    ----------------------------------------------------------------------- */
+
+    _initDiagnosticTerminal() {
+        const header = document.getElementById('hud-terminal-header');
+        if (header) {
+            header.addEventListener('click', () => this.toggleTerminal());
+        }
+
+        // Toggle Terminal via shortcut Cmd+/ or Ctrl+/
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+                e.preventDefault();
+                this.toggleTerminal();
+            }
+        });
+    }
+
+    toggleTerminal() {
+        const terminalEl = document.getElementById('hud-diagnostic-terminal');
+        if (!terminalEl) return;
+
+        if (terminalEl.classList.contains('collapsed')) {
+            terminalEl.classList.remove('collapsed');
+            terminalEl.classList.add('expanded');
+            this.log('SYS_CONSOLE_OPENED // EXPANDED_DIAGNOSTICS_VIEW');
+        } else {
+            terminalEl.classList.remove('expanded');
+            terminalEl.classList.add('collapsed');
+            this.log('SYS_CONSOLE_CLOSED // STANDBY');
+        }
+    }
+
+    log(msg, type = 'info') {
+        const feed = document.getElementById('hud-terminal-feed');
+        if (!feed) return;
+
+        const line = document.createElement('div');
+        line.className = 'console-line';
+
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'console-time';
+        const now = new Date();
+        const ts = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        timeSpan.textContent = `[${ts}]`;
+
+        const msgSpan = document.createElement('span');
+        msgSpan.className = 'console-message font-mono';
+        if (type === 'error' || msg.includes('WARNING') || msg.includes('FAIL') || msg.includes('CRITICAL')) {
+            msgSpan.classList.add('highlight-red');
+        } else if (type === 'success' || msg.includes('OK') || msg.includes('COMPLETE') || msg.includes('SUCCESS') || msg.includes('STABLE') || msg.includes('EXFILTRATED')) {
+            msgSpan.classList.add('highlight-green');
+        } else if (type === 'cyan' || msg.includes('WARPED') || msg.includes('LOADING') || msg.includes('DECRYPT') || msg.includes('COGNITIVE') || msg.includes('ENGAGED') || msg.includes('MAP')) {
+            msgSpan.classList.add('highlight-cyan');
+        }
+
+        msgSpan.textContent = msg;
+
+        line.appendChild(timeSpan);
+        line.appendChild(msgSpan);
+        feed.appendChild(line);
+
+        // Limit lines to 100
+        while (feed.children.length > 100) {
+            feed.removeChild(feed.firstChild);
+        }
+
+        // Scroll to bottom
+        feed.scrollTop = feed.scrollHeight;
     }
 }
 

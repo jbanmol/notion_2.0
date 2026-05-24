@@ -2043,4 +2043,200 @@ body.focus-mode-active .editor-footer { display: none; }
     color: #00f0ff;
 }
 
+/* ==========================================================================
+   HUD COLLAPSIBLE DIAGNOSTIC TERMINAL (Task 3.2)
+   ========================================================================== */
+.hud-terminal {
+    position: fixed;
+    bottom: 0;
+    left: 250px;
+    right: 0;
+    height: 180px;
+    background: rgba(10, 10, 15, 0.92);
+    border-top: 1px solid var(--panel-border);
+    border-left: 1px solid var(--panel-border);
+    backdrop-filter: blur(20px);
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s var(--transition-curve), height 0.3s var(--transition-curve);
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
+}
+@media (max-width: 768px) {
+    .hud-terminal {
+        left: 0;
+    }
+}
+
+.hud-terminal.collapsed {
+    transform: translateY(148px);
+}
+
+.hud-terminal.expanded {
+    height: 350px;
+    transform: translateY(0);
+}
+
+.terminal-header {
+    height: 32px;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--panel-border);
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+}
+
+.terminal-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.65rem;
+    color: var(--neon-secondary);
+    letter-spacing: 0.08em;
+}
+
+.terminal-ctrl-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    transition: color 0.15s, transform 0.3s;
+}
+.terminal-ctrl-btn:hover {
+    color: var(--neon-secondary);
+}
+
+.hud-terminal.expanded .terminal-ctrl-btn {
+    transform: rotate(180deg);
+}
+
+.terminal-body {
+    flex-grow: 1;
+    padding: 12px 16px;
+    overflow-y: auto;
+    font-size: 0.65rem;
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.15);
+}
+/* Style the console scrollbar */
+.terminal-body::-webkit-scrollbar {
+    width: 4px;
+}
+.terminal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+.terminal-body::-webkit-scrollbar-thumb {
+    background: rgba(0, 240, 255, 0.15);
+    border-radius: 2px;
+}
+
+/* ==========================================================================
+   HOLOGRAPHIC NEURAL LINK MAP OVERLAY (Task 1.2)
+   ========================================================================== */
+.graph-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2500;
+    background: rgba(6, 6, 8, 0.88);
+    backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    animation: fade-in 0.3s ease;
+}
+.graph-overlay.hidden { display: none; }
+
+.graph-svg-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.graph-laser-line {
+    stroke-width: 1.5;
+    stroke-dasharray: 8, 4;
+    animation: laser-pulse 4s infinite linear;
+}
+@keyframes laser-pulse {
+    to { stroke-dashoffset: -36; }
+}
+
+.graph-header {
+    height: 60px;
+    border-bottom: 1px solid var(--panel-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 10;
+}
+.graph-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.88rem;
+    letter-spacing: 0.08em;
+}
+
+.graph-nodes-viewport {
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.graph-node-bubble {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 150px;
+    height: 100px;
+    background: rgba(15, 15, 20, 0.82);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    padding: 8px;
+    transition: all 0.3s var(--transition-curve);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    z-index: 5;
+    user-select: none;
+}
+.graph-node-bubble:hover {
+    border-color: var(--neon-secondary);
+    box-shadow: 0 0 20px var(--neon-secondary-glow), 0 8px 24px rgba(0,0,0,0.6);
+    transform: translate(-50%, -50%) scale(1.08);
+}
+.graph-node-bubble.active-map-node {
+    border-color: var(--neon-accent);
+    box-shadow: 0 0 25px var(--neon-accent-glow), 0 8px 24px rgba(255, 0, 127, 0.15);
+}
+
+.graph-footer {
+    height: 48px;
+    border-top: 1px solid var(--panel-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    z-index: 10;
+    background: rgba(0,0,0,0.2);
+}
+
 

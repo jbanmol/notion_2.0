@@ -168,7 +168,7 @@ export class CommandPaletteComponent {
                 <div class="palette-item-left">
                     <i data-lucide="${item.icon || 'terminal'}" class="${isActive ? 'cyan' : 'pink'}"></i>
                     <div>
-                        <div style="font-weight: 500; font-size: 0.95rem;">${item.title}</div>
+                        <div class="palette-item-title font-mono" style="font-weight: 500; font-size: 0.95rem;">${item.title}</div>
                         <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">${item.subtitle}</div>
                     </div>
                 </div>
@@ -187,6 +187,11 @@ export class CommandPaletteComponent {
             });
 
             this.resultsEl.appendChild(div);
+
+            const titleEl = div.querySelector('.palette-item-title');
+            if (titleEl) {
+                this._scrambleText(titleEl, item.title);
+            }
         });
 
         if (window.lucide) {
@@ -507,5 +512,36 @@ export class CommandPaletteComponent {
                 }
             });
         }
+    }
+
+    _scrambleText(element, originalText) {
+        const chars = '0123456789%@$#&+*[]{}<>?_//アカサタナハマヤラワガザダバパイウエオカキクケコ';
+        const duration = 200; // 200ms
+        const intervalTime = 30; // 30ms
+        const cycles = duration / intervalTime;
+        let count = 0;
+
+        const interval = setInterval(() => {
+            if (count >= cycles) {
+                element.textContent = originalText;
+                clearInterval(interval);
+                return;
+            }
+
+            let currentText = '';
+            const progress = count / cycles;
+            const resolvedChars = Math.floor(originalText.length * progress);
+
+            for (let i = 0; i < originalText.length; i++) {
+                if (i < resolvedChars || originalText[i] === ' ') {
+                    currentText += originalText[i];
+                } else {
+                    currentText += chars[Math.floor(Math.random() * chars.length)];
+                }
+            }
+
+            element.textContent = currentText;
+            count++;
+        }, intervalTime);
     }
 }

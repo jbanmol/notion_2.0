@@ -27,8 +27,30 @@ export class EditorComponent {
         this.slashSelected  = 0;    // keyboard nav index
         this.dragFromIndex  = -1;
 
+        // WPM telemetry queues (Task 2.2)
+        this.keypresses = [];
+        this.wpm = 0;
+
         this._initSlashMenu();
         this._initEventListeners();
+
+        // Bind WPM keyboard tracker to editor workspace
+        this.workspaceEl.addEventListener('keydown', (e) => {
+            const isPrintable = e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete' || e.key === 'Enter';
+            if (isPrintable && e.target.classList.contains('block-content')) {
+                this.keypresses.push(Date.now());
+                this._calculateWPM();
+            }
+        });
+
+        // WPM decay polling loop
+        setInterval(() => {
+            this._calculateWPM();
+        }, 2000);
+
+        // Selection change tracker (caret coordinates logging)
+        this.workspaceEl.addEventListener('keyup', (e) => this._trackCaret(e));
+        this.workspaceEl.addEventListener('mouseup', (e) => this._trackCaret(e));
     }
 
     /* -----------------------------------------------------------------------
@@ -124,6 +146,10 @@ export class EditorComponent {
         state.updateDocumentBlocks(this.activeDoc.id, updated);
         this.activeDoc.blocks = updated;
         this.renderBlocks();
+
+        if (window.app && window.app.log) {
+            window.app.log(`BLOCK_MORPHED // INDEX: ${index} // TYPE: ${newType.toUpperCase()}`);
+        }
 
         // Refocus the same block
         setTimeout(() => {
@@ -584,6 +610,10 @@ export class EditorComponent {
             this.activeDoc.blocks = updated;
             this.renderBlocks();
 
+            if (window.app && window.app.log) {
+                window.app.log(`BLOCK_INSERTED // TYPE: TEXT // INDEX: ${index + 1}`);
+            }
+
             // Animate new block + focus
             setTimeout(() => {
                 const nextEl = this.workspaceEl.querySelector(`[data-index="${index + 1}"]`);
@@ -681,5 +711,52 @@ export class EditorComponent {
                 feed.scrollTop = feed.scrollHeight;
             }, i * 150);
         });
+    }
+
+    _calculateWPM() {
+        const now = Date.now();
+        // Filter out keys older than 60s
+        this.keypresses = this.keypresses.filter(t => now - t < 60000);
+        
+        // standard WPM formula: (characters / 5) over 1 min
+        const wpmVal = Math.round(this.keypresses.length / 5);
+        
+        // Prevent updates if unchanged to avoid UI jitter
+        if (this.wpm === wpmVal) return;
+        this.wpm = wpmVal;
+
+        // Map WPM to particle speed factor: 1.0 at 0 WPM, scaling to 3.5 at 75 WPM
+        const factor = 1.0 + (wpmVal / 30);
+        
+        // Dynamically alter particle physics inside focus mode
+        if (window.app && window.app.focusMode && window.app.focusMode.snow) {
+            window.app.focusMode.snow.setSpeedFactor(factor);
+        }
+
+        // Telemetry logging
+        if (wpmVal > 0 && wpmVal % 6 === 0) {
+            if (window.app && window.app.log) {
+                window.app.log(`COGNITIVE_VELOCITY: ${wpmVal} WPM // particle_warp_factor = ${factor.toFixed(2)}x`);
+            }
+        }
+    }
+
+    _trackCaret(e) {
+        const sel = window.getSelection();
+        if (!sel || sel.rangeCount === 0) return;
+        const range = sel.getRangeAt(0);
+        
+        const blockEl = e.target.closest('.editor-block');
+        if (!blockEl) return;
+        const blockIndex = blockEl.dataset.index;
+        const offset = range.startOffset;
+
+        if (window.app && window.app.log) {
+            if (this._lastBlockIndex !== blockIndex || this._lastOffset !== offset) {
+                this._lastBlockIndex = blockIndex;
+                this._lastOffset = offset;
+                window.app.log(`CARET_MUTATION // SECTOR_NOD_${parseInt(blockIndex) + 1} // OFFSET: ${offset}`);
+            }
+        }
     }
 }

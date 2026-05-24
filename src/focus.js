@@ -180,6 +180,7 @@ class SnowSystem {
         this.particles = [];
         this.animId = null;
         this.running = false;
+        this.speedFactor = 1.0;
     }
 
     _resize() {
@@ -203,6 +204,10 @@ class SnowSystem {
         };
     }
 
+    setSpeedFactor(factor) {
+        this.speedFactor = Math.max(1.0, Math.min(factor, 4.0));
+    }
+
     _tick() {
         const { ctx2d, canvas, particles } = this;
         ctx2d.clearRect(0, 0, canvas.width, canvas.height);
@@ -213,11 +218,19 @@ class SnowSystem {
             ctx2d.shadowColor = 'rgba(0, 240, 255, 0.6)';
             ctx2d.shadowBlur = 4;
             ctx2d.fill();
-            p.y += p.speed;
-            p.x += p.drift;
+
+            // Task 2.1: Scale velocity and slant descent based on speedFactor (WPM driven)
+            p.y += p.speed * this.speedFactor;
+            p.x += (p.drift + (this.speedFactor - 1) * -0.3) * this.speedFactor;
+
             if (p.y > canvas.height + 4) {
                 p.y = -4;
                 p.x = Math.random() * canvas.width;
+            }
+            if (p.x < -4) {
+                p.x = canvas.width + 4;
+            } else if (p.x > canvas.width + 4) {
+                p.x = -4;
             }
         });
         if (this.running) this.animId = requestAnimationFrame(() => this._tick());
@@ -357,6 +370,9 @@ class MissionHUD {
         this.pauseBtn.disabled = true;
         // Synthesize double beep
         this.audio.beepAlarm();
+        if (window.app && window.app.log) {
+            window.app.log('POMODORO_ALARM_TRIGGERED // MISSION_COMPLETE');
+        }
         // Show modal
         setTimeout(() => {
             this.modalEl.classList.remove('hidden');
@@ -438,6 +454,9 @@ export class FocusController {
         });
         // Show HUD in focus mode
         if (this.hud) this.hud.show();
+        if (window.app && window.app.log) {
+            window.app.log('FOCUS_MODE_ENGAGED // NEBULA_STREAMS_ACTIVE');
+        }
     }
 
     /* --- Focus OFF --- */
@@ -452,6 +471,9 @@ export class FocusController {
         }, 1000);
         // Hide HUD but keep timer running
         if (this.hud) this.hud.hide(true);
+        if (window.app && window.app.log) {
+            window.app.log('FOCUS_MODE_DISENGAGED // BANDWIDTH_RESTORED');
+        }
     }
 
     /* 2.3 — Wire audio selector */
@@ -460,6 +482,9 @@ export class FocusController {
             this.audio.setProfile(e.target.value);
             this.audio.warm();
             this.audio.click();
+            if (window.app && window.app.log) {
+                window.app.log(`AUDIO_PROFILE_CHANGED // SYNTH: ${e.target.value.toUpperCase()}`);
+            }
         });
     }
 

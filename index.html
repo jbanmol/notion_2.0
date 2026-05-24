@@ -41,10 +41,14 @@
             </div>
 
             <!-- Page Management -->
-            <div class="sidebar-actions">
-                <button id="add-page-btn" class="cyber-btn glass-btn">
+            <div class="sidebar-actions" style="display: flex; gap: 8px;">
+                <button id="add-page-btn" class="cyber-btn glass-btn" style="flex: 1;">
                     <i data-lucide="plus-circle"></i>
                     <span>NEW_NODE.EXE</span>
+                </button>
+                <button id="view-graph-btn" class="cyber-btn glass-btn" style="flex: 1;" title="View Neural Link Grid Map">
+                    <i data-lucide="network"></i>
+                    <span>NEURAL_MAP</span>
                 </button>
             </div>
 
@@ -237,6 +241,49 @@
             <h2 class="modal-title font-mono">MISSION_COMPLETE</h2>
             <p class="modal-desc">Intrusion window elapsed. Neural bandwidth restored.</p>
             <button id="modal-dismiss-btn" class="hud-btn hud-btn-start font-mono">ACKNOWLEDGED ✓</button>
+        </div>
+    </div>
+
+    <!-- HOLOGRAPHIC NEURAL LINK MAP OVERLAY -->
+    <div id="neural-grid-graph-overlay" class="graph-overlay hidden">
+        <!-- SVG Canvas for glowing connector laser paths -->
+        <svg id="graph-svg-canvas" class="graph-svg-canvas"></svg>
+
+        <div class="graph-header font-mono">
+            <div class="graph-title-group">
+                <i data-lucide="network" class="cyan pulsing" style="width: 20px; height: 20px; filter: drop-shadow(0 0 4px var(--neon-secondary-glow));"></i>
+                <span class="cyan highlight">NEURAL_GRID_GRAPH // GLOBAL_MAP.EXE</span>
+            </div>
+            <button id="close-graph-btn" class="cyber-btn glass-btn" style="width: 150px; border-color: var(--neon-accent); color: var(--neon-accent);">DISCONNECT_MAP</button>
+        </div>
+
+        <!-- Node cards will be injected dynamically here -->
+        <div id="graph-nodes-viewport" class="graph-nodes-viewport"></div>
+        
+        <div class="graph-footer font-mono">
+            <span>● Select glowing sector nodes to exfiltrate database records</span>
+            <span>● Press ESC or click background to exit link grid map</span>
+        </div>
+    </div>
+
+    <!-- HUD COLLAPSIBLE DIAGNOSTIC TERMINAL (Task 3.1) -->
+    <div id="hud-diagnostic-terminal" class="hud-terminal collapsed">
+        <div id="hud-terminal-header" class="terminal-header font-mono">
+            <div class="terminal-brand">
+                <i data-lucide="terminal" class="green pulsing" style="width: 14px; height: 14px;"></i>
+                <span>CONSOLE_DIAGNOSTICS.LOG</span>
+            </div>
+            <div class="terminal-controls">
+                <button id="hud-terminal-toggle" class="terminal-ctrl-btn" title="Toggle Terminal Size">
+                    <i data-lucide="chevron-up"></i>
+                </button>
+            </div>
+        </div>
+        <div class="terminal-body font-mono" id="hud-terminal-feed">
+            <div class="console-line">
+                <span class="console-time">[00:00:00]</span>
+                <span class="console-message font-mono highlight-cyan">SYS_DIAGNOSTICS_BOOTED // SYSTEM_OK</span>
+            </div>
         </div>
     </div>
 
