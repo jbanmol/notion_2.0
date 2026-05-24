@@ -7,6 +7,7 @@ import { SidebarComponent } from './sidebar.js';
 import { EditorComponent } from './editor.js';
 import { CommandPaletteComponent } from './palette.js';
 import { FocusController } from './focus.js';
+import { GraphController } from './graph.js';
 
 class AppController {
     constructor() {
@@ -14,6 +15,7 @@ class AppController {
         this.editor = new EditorComponent();
         this.palette = new CommandPaletteComponent((doc) => this.editor.loadDocument(doc));
         this.focus = new FocusController();
+        this.graph = new GraphController();
 
         this.themeBtnEl = document.getElementById('theme-toggle-btn');
         this.themeDropdownEl = document.getElementById('theme-dropdown');
@@ -37,6 +39,9 @@ class AppController {
 
         // Render initial sidebar
         this.sidebar.render();
+
+        // Boot custom telemetry exporter
+        this.initExporter();
 
         console.log("⚡ NEONOTION CORES ENGAGED. FUTURISTIC HUD DEPLOYED.");
     }
@@ -90,6 +95,61 @@ class AppController {
             themeOptions.forEach(o => o.classList.remove('active'));
             activeOpt.classList.add('active');
         }
+    }
+
+    initExporter() {
+        const btn = document.getElementById('export-chip-btn');
+        if (btn) {
+            btn.addEventListener('click', () => {
+                this.exportCurrentDocument();
+            });
+        }
+    }
+
+    exportCurrentDocument() {
+        const activeDoc = state.getActiveDocument();
+        if (!activeDoc) return;
+
+        // Custom high-tech structured exfiltration payload
+        const payload = {
+            metadata: {
+                header: "CYBER_CORE_NODE_TELEMETRY",
+                version: "2.0",
+                security_layer: "AES-DYNAMIC-256",
+                exfiltration_timestamp: new Date().toISOString(),
+                node_id: activeDoc.id
+            },
+            payload: {
+                title: activeDoc.title,
+                icon: activeDoc.icon || "file-text",
+                blocks: activeDoc.blocks
+            }
+        };
+
+        const jsonString = JSON.stringify(payload, null, 4);
+        
+        // Dynamic file download trigger
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        
+        // Clean cyberpunk filename
+        const cleanTitle = activeDoc.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        a.download = `${cleanTitle}_CORE_CHIP.DAT`;
+        
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        // Play synthetic mechanical confirm click sound!
+        if (this.focus && this.focus.audio) {
+            this.focus.audio.playAlarm(); // double beep for download success!
+        }
+
+        console.log(`[DECRYPT] Exfiltrated telemetry successfully! Saved ${cleanTitle}_CORE_CHIP.DAT`);
     }
 }
 

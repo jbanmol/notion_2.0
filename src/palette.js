@@ -45,6 +45,13 @@ export class CommandPaletteComponent {
                 subtitle: 'Deploys a pre-formatted operational calendar block',
                 type: 'ai',
                 icon: 'calendar-range'
+            },
+            {
+                id: 'ai-export',
+                title: '💾 AI: Exfiltrate Core Telemetry Chip',
+                subtitle: 'Compiles and downloads active workspace sector blocks in a secure DAT chip',
+                type: 'ai',
+                icon: 'download'
             }
         ];
 
@@ -238,7 +245,13 @@ export class CommandPaletteComponent {
                 window.app.applyTheme(item.value);
             }
         } else if (item.type === 'ai') {
-            this.runAiSimulation(item.id);
+            if (item.id === 'ai-export') {
+                if (window.app) {
+                    window.app.exportCurrentDocument();
+                }
+            } else {
+                this.runAiSimulation(item.id);
+            }
         }
     }
 

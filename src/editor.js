@@ -10,6 +10,25 @@ export class EditorComponent {
         this.workspaceEl = document.getElementById('editor-workspace');
         
         this.activeDoc = null;
+        
+        // Slash Command Radar properties
+        this.slashMenuEl = null;
+        this.slashMenuActiveIndex = 0;
+        this.slashMenuTargetBlockIndex = -1;
+        this.slashMenuTargetInputEl = null;
+        this.slashMenuFilteredItems = [];
+        
+        this.slashCommands = [
+            { type: 'text', label: 'Plain Text (TEXT_SECTOR)', icon: 'type', subtitle: 'Start writing standard records' },
+            { type: 'heading-1', label: 'Heading 1 (HEADING_1_SECTOR)', icon: 'heading-1', subtitle: 'H1 section title segment' },
+            { type: 'heading-2', label: 'Heading 2 (HEADING_2_SECTOR)', icon: 'heading-2', subtitle: 'H2 sub-section grid coordinate' },
+            { type: 'heading-3', label: 'Heading 3 (HEADING_3_SECTOR)', icon: 'heading-3', subtitle: 'H3 small tracking index label' },
+            { type: 'checklist', label: 'Checklist Node (CHECKLIST_NODE)', icon: 'check-square', subtitle: 'Spawns clickable task elements' },
+            { type: 'code', label: 'Code Module (CODE_MODULE)', icon: 'code', subtitle: 'High-contrast neon script terminal' },
+            { type: 'table', label: 'Interactive Table (TABLE_MATRIX)', icon: 'table', subtitle: 'Matrix grid spreadsheet layout' },
+            { type: 'timeline', label: 'Hologram Timeline (TIMELINE_DECK)', icon: 'git-branch', subtitle: 'Operations chronological log console' }
+        ];
+
         this.initEventListeners();
     }
 
@@ -265,9 +284,13 @@ export class EditorComponent {
             contentContainer.innerHTML = block.content || '';
             contentContainer.setAttribute('placeholder', this.getPlaceholderForType(block.type));
 
-            // Content changes listeners
-            contentContainer.addEventListener('blur', () => this.saveCurrentBlockState());
-            contentContainer.addEventListener('keydown', (e) => this.handleKeyboardNavigation(e, index));
+             // Content changes listeners
+             contentContainer.addEventListener('blur', () => {
+                 // Fast timeout to allow clicking slash menu items before closing
+                 setTimeout(() => this.saveCurrentBlockState(), 150);
+             });
+             contentContainer.addEventListener('input', (e) => this.handleBlockInput(e, div, block, index));
+             contentContainer.addEventListener('keydown', (e) => this.handleKeyboardNavigation(e, index));
         }
 
         div.appendChild(contentContainer);
@@ -323,6 +346,35 @@ export class EditorComponent {
     }
 
     handleKeyboardNavigation(e, index) {
+        // If the Slash Menu is open, intercept keyboard navigation
+        if (this.slashMenuEl && !this.slashMenuEl.classList.contains('hidden')) {
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                this.slashMenuActiveIndex = (this.slashMenuActiveIndex + 1) % this.slashMenuFilteredItems.length;
+                this.renderSlashMenu();
+                return;
+            }
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                this.slashMenuActiveIndex = (this.slashMenuActiveIndex - 1 + this.slashMenuFilteredItems.length) % this.slashMenuFilteredItems.length;
+                this.renderSlashMenu();
+                return;
+            }
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const selected = this.slashMenuFilteredItems[this.slashMenuActiveIndex];
+                if (selected) {
+                    this.morphBlock(selected.type);
+                }
+                return;
+            }
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                this.closeSlashMenu();
+                return;
+            }
+        }
+
         // Minimal editor commands for initial scaffolding
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -364,5 +416,174 @@ export class EditorComponent {
                 }, 50);
             }
         }
+    }
+
+    // --- Slash Command Radar Menu Logic ---
+    handleBlockInput(e, blockEl, block, index) {
+        const text = e.target.textContent;
+
+        // If user typed /, spawn slash radar popup menu
+        if (text === '/' || text.endsWith('/')) {
+            this.showSlashMenu(e.target, blockEl, block, index);
+        } 
+        
+        // Filter menu items on query if menu is active
+        else if (this.slashMenuEl && !this.slashMenuEl.classList.contains('hidden')) {
+            const lastSlash = text.lastIndexOf('/');
+            if (lastSlash !== -1) {
+                const query = text.substring(lastSlash + 1).toLowerCase().trim();
+                this.filterSlashMenu(query);
+            } else {
+                this.closeSlashMenu();
+            }
+        }
+    }
+
+    showSlashMenu(targetInputEl, blockEl, block, index) {
+        this.slashMenuTargetInputEl = targetInputEl;
+        this.slashMenuTargetBlockIndex = index;
+        this.slashMenuActiveIndex = 0;
+
+        // Create overlay container if not existing
+        if (!this.slashMenuEl) {
+            this.slashMenuEl = document.createElement('div');
+            this.slashMenuEl.className = 'slash-menu-popup glass-panel animate-slide-up';
+            this.slashMenuEl.style.position = 'fixed';
+            this.slashMenuEl.style.width = '260px';
+            this.slashMenuEl.style.maxHeight = '240px';
+            this.slashMenuEl.style.overflowY = 'auto';
+            this.slashMenuEl.style.zIndex = '8000';
+            document.body.appendChild(this.slashMenuEl);
+        }
+
+        // Align menu directly below the active target element
+        const rect = targetInputEl.getBoundingClientRect();
+        this.slashMenuEl.style.left = `${rect.left}px`;
+        this.slashMenuEl.style.top = `${rect.bottom + window.scrollY + 6}px`;
+        this.slashMenuEl.classList.remove('hidden');
+
+        this.filterSlashMenu(''); // Load all defaults
+    }
+
+    filterSlashMenu(query) {
+        if (query === '') {
+            this.slashMenuFilteredItems = this.slashCommands;
+        } else {
+            this.slashMenuFilteredItems = this.slashCommands.filter(item => 
+                item.label.toLowerCase().includes(query) || 
+                item.subtitle.toLowerCase().includes(query)
+            );
+        }
+
+        this.slashMenuActiveIndex = Math.min(this.slashMenuActiveIndex, this.slashMenuFilteredItems.length - 1);
+        if (this.slashMenuActiveIndex < 0) this.slashMenuActiveIndex = 0;
+
+        this.renderSlashMenu();
+    }
+
+    renderSlashMenu() {
+        if (!this.slashMenuEl) return;
+        this.slashMenuEl.innerHTML = '';
+
+        if (this.slashMenuFilteredItems.length === 0) {
+            this.slashMenuEl.innerHTML = `<div class="font-mono text-muted text-center" style="padding: 10px; font-size:0.75rem;">NO PROTOCOLS FOUND</div>`;
+            return;
+        }
+
+        this.slashMenuFilteredItems.forEach((item, index) => {
+            const isActive = index === this.slashMenuActiveIndex;
+            const opt = document.createElement('div');
+            opt.className = `slash-menu-item ${isActive ? 'active' : ''}`;
+            opt.innerHTML = `
+                <i data-lucide="${item.icon}" class="${isActive ? 'cyan' : 'pink'}"></i>
+                <div>
+                    <div style="font-weight:600; font-size:0.8rem;">${item.label}</div>
+                    <div style="font-size:0.65rem; color:var(--text-muted);">${item.subtitle}</div>
+                </div>
+            `;
+
+            opt.addEventListener('mouseenter', () => {
+                this.slashMenuActiveIndex = index;
+                this.updateSlashMenuVisuals();
+            });
+
+            opt.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.morphBlock(item.type);
+            });
+
+            this.slashMenuEl.appendChild(opt);
+        });
+
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    }
+
+    updateSlashMenuVisuals() {
+        const items = this.slashMenuEl.querySelectorAll('.slash-menu-item');
+        items.forEach((item, index) => {
+            if (index === this.slashMenuActiveIndex) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
+
+    closeSlashMenu() {
+        if (this.slashMenuEl) {
+            this.slashMenuEl.classList.add('hidden');
+        }
+    }
+
+    morphBlock(type) {
+        if (this.slashMenuTargetBlockIndex === -1 || !this.activeDoc) return;
+
+        const index = this.slashMenuTargetBlockIndex;
+        const targetBlock = this.activeDoc.blocks[index];
+        if (!targetBlock) return;
+
+        // Strip the trailing / from block content if it was typed
+        let initialText = this.slashMenuTargetInputEl.innerHTML.trim();
+        if (initialText.endsWith('/')) {
+            initialText = initialText.substring(0, initialText.length - 1);
+        }
+
+        // Setup base dynamic contents for special blocks
+        let content = initialText;
+        if (type === 'table') {
+            content = JSON.stringify({
+                headers: ['SECTOR_FIELD', 'CALIBRATION_VALUE'],
+                rows: [
+                    ['decoy_router_state', 'SECURE'],
+                    ['exfiltrate_rate', '94%']
+                ]
+            });
+        } else if (type === 'timeline') {
+            content = JSON.stringify([
+                { time: 'T-MINUS 05:00', title: 'DYNAMIC_INTRUSION.EXE', status: 'ONLINE', details: 'Holographic slash mapping triggered block calibration.', icon: 'activity', color: 'cyan' }
+            ]);
+        }
+
+        const morphedBlock = {
+            id: targetBlock.id,
+            type: type,
+            content: content,
+            checked: false
+        };
+
+        const updatedBlocks = [...this.activeDoc.blocks];
+        updatedBlocks[index] = morphedBlock;
+
+        state.updateDocumentBlocks(this.activeDoc.id, updatedBlocks);
+        this.closeSlashMenu();
+        this.renderBlocks();
+
+        // Focus inside the morphed block
+        setTimeout(() => {
+            const blockEl = this.workspaceEl.querySelector(`[data-index="${index}"] .block-content`);
+            if (blockEl) blockEl.focus();
+        }, 50);
     }
 }

@@ -5,6 +5,7 @@
 class CyberAudio {
     constructor() {
         this.ctx = null;
+        this.currentProfile = 'mech'; // Default click sound
     }
 
     init() {
@@ -16,48 +17,106 @@ class CyberAudio {
     playClick() {
         this.init();
         if (!this.ctx || this.ctx.state === 'suspended') {
-            // Context might need a user gesture, resume if needed
             this.ctx.resume();
         }
         
         const now = this.ctx.currentTime;
 
-        // 1. Synthetic crisp tactile transient (click sound)
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
+        if (this.currentProfile === 'vaporwave') {
+            // SYN_SINE: Resonant high-pitched synthesizer bell chime
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1400, now);
+            osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+            
+            gain.gain.setValueAtTime(0.04, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+            
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start();
+            osc.stop(now + 0.15);
+        } 
         
-        // Crisp high-frequency pitch sweep
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(600 + Math.random() * 300, now);
-        osc.frequency.exponentialRampToValueAtTime(100, now + 0.03);
+        else if (this.currentProfile === 'dystopian') {
+            // LOW_BASS: Deep dampened tactile mechanical thud
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(110, now);
+            osc.frequency.exponentialRampToValueAtTime(45, now + 0.06);
+            
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+            
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start();
+            osc.stop(now + 0.1);
+        } 
         
-        gain.gain.setValueAtTime(0.06, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+        else if (this.currentProfile === 'glitch') {
+            // PLS_STATIC: Ultra-short electrostatic glitch crackle
+            const bufferSize = this.ctx.sampleRate * 0.006; // Ultra-short 6ms buffer
+            const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * 0.7; // Glitched static noise
+            }
+            
+            const noise = this.ctx.createBufferSource();
+            noise.buffer = buffer;
+            
+            const gain = this.ctx.createGain();
+            gain.gain.setValueAtTime(0.04, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.006);
+            
+            noise.connect(gain);
+            gain.connect(this.ctx.destination);
+            noise.start();
+        } 
         
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        
-        osc.start();
-        osc.stop(now + 0.04);
+        else {
+            // TCT_MECH: Standard tactical mechanical click
+            // 1. Synthetic crisp tactile transient (click sound)
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(600 + Math.random() * 300, now);
+            osc.frequency.exponentialRampToValueAtTime(100, now + 0.03);
+            
+            gain.gain.setValueAtTime(0.06, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+            
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.start();
+            osc.stop(now + 0.04);
 
-        // 2. High-pass noise crunch (simulates space bar/key strike bottom-out)
-        const bufferSize = this.ctx.sampleRate * 0.015; // 15ms buffer
-        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-            data[i] = Math.random() * 2 - 1;
+            // 2. High-pass noise crunch
+            const bufferSize = this.ctx.sampleRate * 0.015;
+            const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            
+            const noise = this.ctx.createBufferSource();
+            noise.buffer = buffer;
+            
+            const noiseGain = this.ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.012, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.015);
+            
+            noise.connect(noiseGain);
+            noiseGain.connect(this.ctx.destination);
+            noise.start();
         }
-        
-        const noise = this.ctx.createBufferSource();
-        noise.buffer = buffer;
-        
-        const noiseGain = this.ctx.createGain();
-        noiseGain.gain.setValueAtTime(0.012, now);
-        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.015);
-        
-        noise.connect(noiseGain);
-        noiseGain.connect(this.ctx.destination);
-        noise.start();
     }
 
     playAlarm() {
@@ -147,6 +206,15 @@ export class FocusController {
         this.btnStart.addEventListener('click', () => this.startTimer());
         this.btnPause.addEventListener('click', () => this.pauseTimer());
         this.btnReset.addEventListener('click', () => this.resetTimer());
+
+        // Audio Driver Selector binding
+        const audioSelect = document.getElementById('timer-audio-driver');
+        if (audioSelect) {
+            audioSelect.addEventListener('change', (e) => {
+                this.audio.currentProfile = e.target.value;
+                this.audio.playClick(); // Audibly confirm the selected driver profile immediately
+            });
+        }
 
         // Update display on startup
         this.updateTimerDisplay();

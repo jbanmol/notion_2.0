@@ -48,6 +48,10 @@
                     <i data-lucide="plus-circle"></i>
                     <span>NEW_NODE.EXE</span>
                 </button>
+                <button id="view-graph-btn" class="cyber-btn glass-btn" style="margin-top: 8px; border-color: var(--neon-primary); box-shadow: inset 0 0 4px rgba(157, 0, 255, 0.1), 0 0 4px rgba(157, 0, 255, 0.15);">
+                    <i data-lucide="network"></i>
+                    <span>NEURAL_GRID_MAP</span>
+                </button>
             </div>
 
             <!-- Navigation Tree -->
@@ -83,6 +87,12 @@
                 </div>
 
                 <div class="header-utilities">
+                    <!-- Telemetry Exporter Button -->
+                    <button id="export-chip-btn" class="utility-icon-btn font-mono" title="Exfiltrate Node Data (Export JSON)">
+                        <i data-lucide="download"></i>
+                        <span class="btn-hotkey">EXPORT_CHIP</span>
+                    </button>
+
                     <!-- Focus Mode Toggle Button -->
                     <button id="focus-toggle-btn" class="utility-icon-btn font-mono" title="Activate Focus Mode (Cmd+Shift+F)">
                         <i data-lucide="eye"></i>
@@ -130,6 +140,15 @@
                         <i data-lucide="refresh-cw"></i>
                     </button>
                 </div>
+                <div class="audio-driver-select-container font-mono">
+                    <span class="audio-driver-label">AUDIO_DRIVER:</span>
+                    <select id="timer-audio-driver" class="timer-audio-select">
+                        <option value="mech">TCT_MECH</option>
+                        <option value="vaporwave">SYN_SINE</option>
+                        <option value="dystopian">LOW_BASS</option>
+                        <option value="glitch">PLS_STATIC</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Editor Container -->
@@ -163,6 +182,28 @@
                 <span>↵ Select</span>
                 <span>/ Switch node</span>
             </div>
+        </div>
+    </div>
+
+    <!-- HOLOGRAPHIC NEURAL LINK MAP OVERLAY -->
+    <div id="neural-grid-graph-overlay" class="graph-overlay hidden">
+        <!-- SVG Canvas for glowing pulsing connector laser lines -->
+        <svg id="graph-svg-canvas" class="graph-svg-canvas"></svg>
+
+        <div class="graph-header font-mono">
+            <div class="graph-title-group">
+                <i data-lucide="network" class="cyan pulsing" style="width: 20px; height: 20px; filter: drop-shadow(0 0 4px var(--neon-secondary-glow));"></i>
+                <span class="cyan highlight">NEURAL_GRID_GRAPH // GLOBAL_MAP.EXE</span>
+            </div>
+            <button id="close-graph-btn" class="cyber-btn glass-btn" style="width: 150px; border-color: var(--neon-accent); color: var(--neon-accent);">DISCONNECT_MAP</button>
+        </div>
+
+        <!-- Node cards will be injected dynamically here -->
+        <div id="graph-nodes-viewport" class="graph-nodes-viewport"></div>
+        
+        <div class="graph-footer font-mono">
+            <span>● Select glowing nodes to exfiltrate sector logs</span>
+            <span>● Click main text to return to workspace</span>
         </div>
     </div>
 
